@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0510">
-<title>Hortus Nocturne — A 3D ASCII Bouquet</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23170a1b'/><g transform='translate(32 32)' fill='%23f08ab0'><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(0)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(72)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(144)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(216)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(288)'/></g><circle cx='32' cy='32' r='6' fill='%23f8c94a'/></svg>">
+<title>Piece of you</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
@@ -161,7 +162,7 @@
   }
   /* slots the bouquet glides into: one opens the letter, one seals it */
   .emblem { flex: none; width: min(13em, 72vw); aspect-ratio: 1.315; margin: 0 auto .3em; pointer-events: none; }
-  .seal { flex: none; width: min(9em, 50vw); aspect-ratio: 1; margin: .8em auto 0; pointer-events: none; }
+  .seal { flex: none; width: min(9em, 50vw); aspect-ratio: 1; margin: 3.4em auto 0; pointer-events: none; }
   @media (orientation: landscape) and (max-height: 560px) { .emblem { width: min(10em, 46vh); } .seal { width: min(6em, 30vh); } }
   /* letter extras: date line, highlighted words, whispers in the margin, reasons list, polaroid, P.S. */
   #letter .date { margin: 0 0 1.1em; text-align: center; font-size: .62em; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; color: #e8a3ae; }
@@ -1136,8 +1137,8 @@ const SEAL_RAMP = ['\u00B7', ':', '+', '*', 'o', 'O', '@'];
 function drawSeal(x, y, w, al, t) {
   const R = w / 2, br = 1 + .05 * Math.sin(t * 1.6);
   ctx.save(); ctx.translate(x, y); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  const g = ctx.createRadialGradient(0, 0, R * .1, 0, 0, R * 1.5); g.addColorStop(0, 'rgba(255,120,160,' + (.28 * al).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,120,160,0)');
-  ctx.fillStyle = g; ctx.fillRect(-R * 1.5, -R * 1.5, R * 3, R * 3);
+  const g = ctx.createRadialGradient(0, 0, R * .1, 0, 0, R * 1.15); g.addColorStop(0, 'rgba(255,120,160,' + (.24 * al).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,120,160,0)');
+  ctx.fillStyle = g; ctx.fillRect(-R * 1.2, -R * 1.2, R * 2.4, R * 2.4);
   const n = 24, fr = clamp(R * .2, 8, 15);
   ctx.font = fr + 'px ' + FONT;
   for (let i = 0; i < n; i++) {
@@ -1372,6 +1373,7 @@ window.__reveal = function () {
     t0 = 0; started2 = true;
     document.body.classList.add('go');
     gate.classList.add('out');
+    try { window.__song && window.__song(); } catch (_) {}      // the song begins together with the bloom
   }, 1800);                                                // the bouquet waits a moment while the hearts burst
   setTimeout(function () { gate.style.display = 'none'; }, 1800 + 1700);
 };
@@ -1502,7 +1504,7 @@ function loop(now) {
   if (!bursting) {                                                                          // press-and-hold progress
     hold = clamp(hold + (holding ? dt / HOLD_SECONDS : -dt / 1.8), 0, 1);
     if (hold >= 1) {
-      holding = false; btn.classList.remove('holding'); chargeStop(); chime(); musFade();
+      holding = false; btn.classList.remove('holding'); chargeStop(); chime();
       window.__gateBurst(); try { navigator.vibrate && navigator.vibrate([25, 40, 25]); } catch (_) {}
       window.__reveal && window.__reveal();
     }
@@ -1592,46 +1594,41 @@ function audioInit() {
     echo = AC.createGain(); echo.gain.value = .55; echo.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(master);   // soft shimmering echo
   } catch (_) { AC = null; soundOn = false; }
 }
-function chargeStart() {
-  if (!AC || !soundOn || chg) return;
-  const o1 = AC.createOscillator(), o2 = AC.createOscillator(), lfo = AC.createOscillator(), lg = AC.createGain(), f = AC.createBiquadFilter(), g = AC.createGain();
-  o1.type = 'sine'; o2.type = 'triangle'; f.type = 'lowpass'; g.gain.value = 0; lfo.frequency.value = 5.5; lg.gain.value = 7;
-  lfo.connect(lg); lg.connect(o2.detune); o1.connect(f); o2.connect(f); f.connect(g); g.connect(master); g.connect(echo);
-  o1.start(); o2.start(); lfo.start(); chg = { o1, o2, lfo, f, g }; musLevel(.5);
+/* gentle sounds: while she holds, a slow, soft music-box tune climbs; each heartbeat is a quiet round "boop"; opening is a warm, lingering shimmer */
+const PENTA = [60, 62, 64, 67, 69, 72, 74, 76, 79, 81];
+const nhz = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
+function bell(t, m, v, len, wet) {
+  [[1, v], [2, v * .12]].forEach(function (h) {
+    const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = nhz(m) * h[0];
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(h[1], t + .025); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+    o.connect(g); g.connect(master); if (wet) g.connect(echo); o.start(t); o.stop(t + len + .05);
+  });
 }
+function chargeStart() { if (!AC || !soundOn || chg) return; chg = { last: 0, i: 0 }; }
 function chargeUpdate(h) {
-  if (!chg) return; const t = AC.currentTime, fr = 130 * Math.pow(4, h);                 // glides up two octaves as the heart fills
-  chg.o1.frequency.setTargetAtTime(fr, t, .05); chg.o2.frequency.setTargetAtTime(fr * 1.5, t, .05);
-  chg.f.frequency.setTargetAtTime(500 + 3200 * h, t, .05); chg.g.gain.setTargetAtTime(.035 + .10 * h, t, .08);
+  if (!chg) return;
+  const t = AC.currentTime, iv = lerp(.55, .24, h);                          // slow and calm, only a little faster as the heart fills
+  if (t - chg.last < iv) return; chg.last = t;
+  const lo = Math.floor(h * 5), m = PENTA[Math.min(PENTA.length - 1, lo + ((chg.i * 2 + (chg.i % 3)) % 4))]; chg.i++;
+  bell(t, m, .04 + .025 * h, 1.1, true);
 }
-function chargeStop() {
-  if (!chg) return; const c = chg, t = AC.currentTime; chg = null;
-  c.g.gain.cancelScheduledValues(t); c.g.gain.setTargetAtTime(0, t, .06); [c.o1, c.o2, c.lfo].forEach(function (o) { o.stop(t + .45); }); musLevel(1);
-}
-function thump(v, gap) {                                                                      // lub-dub
+function chargeStop() { if (!chg) return; chg = null; }
+function thump(v, gap) {                                                                      // a quiet, round "boop-boop"
   if (!AC || !soundOn) return; const t = AC.currentTime;
-  [[0, 1], [gap || .17, .6]].forEach(function (b) {
+  [[0, 1, 200, 270], [gap || .17, .6, 250, 330]].forEach(function (b) {
     const o = AC.createOscillator(), g = AC.createGain(), d = b[0], k = b[1];
-    o.type = 'sine'; o.frequency.setValueAtTime(125, t + d); o.frequency.exponentialRampToValueAtTime(58, t + d + .14);
-    g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(v * k, t + d + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d + .2);
-    o.connect(g); g.connect(master); o.start(t + d); o.stop(t + d + .25);
+    o.type = 'sine'; o.frequency.setValueAtTime(b[2], t + d); o.frequency.exponentialRampToValueAtTime(b[3], t + d + .09);
+    g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(v * k * .38, t + d + .015); g.gain.exponentialRampToValueAtTime(.0001, t + d + .22);
+    o.connect(g); g.connect(master); o.start(t + d); o.stop(t + d + .26);
   });
 }
-function chime() {                                                                       // the heart opens: a rising bell arpeggio over a warm low note
+function chime() {                                                                       // opening: a soft rising shimmer that lingers
   if (!AC || !soundOn) return; const t = AC.currentTime;
-  [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568].forEach(function (fr, i) {
-    const d = i * .075;
-    [[1, .16], [2.005, .045]].forEach(function (m) {
-      const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = fr * m[0];
-      g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(m[1], t + d + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d + 2.4);
-      o.connect(g); g.connect(master); g.connect(echo); o.start(t + d); o.stop(t + d + 2.5);
-    });
-  });
-  const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = 130.81;
-  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.3, t + .04); g.gain.exponentialRampToValueAtTime(.0001, t + 1.8); o.connect(g); g.connect(master); o.start(t); o.stop(t + 1.9);
+  [72, 76, 79, 84, 88, 91].forEach(function (m, i) { bell(t + i * .13, m, .07 - i * .006, 2.4, true); });
+  bell(t, 48, .06, 2.8, false); bell(t + .26, 55, .04, 2.6, false);                      // warm low notes underneath
 }
 /* background music, also synthesized: a slow, dreamy loop (Cmaj7 - Am7 - Fmaj7 - G) of soft pads, a warm bass note and music-box plucks, kept quiet.
-   It begins on her first touch (browsers don't allow sound before that), dips while she holds, and fades away as the heart opens. */
+   It only plays once the bouquet has bloomed in (page 2); the first page has just the heartbeat and the music-box chimes. */
 let mus = null, musOn = false, musTimer = 0, musNext = 0, musStep = 0, musFading = false;
 const MUS_VOL = .6, EIGHTH = .56, mf = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };      // <- MUS_VOL: music loudness (0 - 1)
 const CHORDS = [{ r: 36, p: [48, 52, 55, 59], a: [64, 67, 71, 72, 76] }, { r: 33, p: [45, 52, 55, 60], a: [64, 67, 69, 72, 76] },
@@ -1669,16 +1666,16 @@ function musStart() {
   musOn = true; mus = AC.createGain(); mus.gain.value = 0; mus.gain.setTargetAtTime(MUS_VOL, AC.currentTime, 1.6); mus.connect(master); mus.connect(echo);
   musNext = AC.currentTime + .15; musStep = 0; musTick(); musTimer = setInterval(musTick, 200);
 }
-function musLevel(v) { bgLevel(v); if (mus && musOn && !musFading) mus.gain.setTargetAtTime(v * MUS_VOL, AC.currentTime, .5); }
+function musLevel(v) { if (mus && musOn && !musFading) mus.gain.setTargetAtTime(v * MUS_VOL, AC.currentTime, .5); }
 function musStop(tau) {
   musOn = false; clearInterval(musTimer); if (!mus) return;
   const m = mus; mus = null; m.gain.cancelScheduledValues(AC.currentTime); m.gain.setTargetAtTime(0, AC.currentTime, tau);
   setTimeout(function () { try { m.disconnect(); } catch (_) {} }, tau * 5000 + 2500);
 }
-function musFade() { musFading = true; musStop(2.6); }
 /* background song: a hidden YouTube player (needs the page to be hosted over https). If it can't load, the synthesized music is used instead. */
 const YT_ID = '4BDB8GwNySs', YT_VOL = 22;               // <- YT_VOL: song loudness (0 - 100)
-let yt = null, ytReady = false, ytFailed = false, ytWant = false, ytLevel = 1;
+let yt = null, ytReady = false, ytFailed = false, ytWant = false, ytLevel = 1, ytMuted = false, ytGesture = false, ytFade = 0,
+    revealed = false, ytPrimed = false, songStarted = false, ytNeedsTap = false;
 (function () {
   const box = document.createElement('div'); box.id = 'ytbox'; box.setAttribute('aria-hidden', 'true');
   box.style.cssText = 'position:fixed;left:-400px;top:0;width:200px;height:200px;opacity:0;pointer-events:none;overflow:hidden';
@@ -1688,7 +1685,10 @@ let yt = null, ytReady = false, ytFailed = false, ytWant = false, ytLevel = 1;
       yt = new YT.Player('ytp', { width: '200', height: '200', videoId: YT_ID,
         playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: YT_ID, playsinline: 1, rel: 0, modestbranding: 1, disablekb: 1, fs: 0 },
         events: {
-          onReady: function () { ytReady = true; try { yt.setVolume(YT_VOL * ytLevel); } catch (_) {} if (ytWant && soundOn) { try { yt.playVideo(); } catch (_) {} } },
+          onReady: function () {
+            ytReady = true; try { yt.setVolume(YT_VOL * ytLevel); } catch (_) {}
+            if (revealed) bgStart(); else if (ytGesture) ytPrime();                        // nothing is heard on the first page
+          },
           onStateChange: function (e) { if (e.data === 0) { try { yt.seekTo(0); yt.playVideo(); } catch (_) {} } },
           onError: function () { ytFailed = true; if (ytWant && soundOn) musStart(); }
         } });
@@ -1697,20 +1697,46 @@ let yt = null, ytReady = false, ytFailed = false, ytWant = false, ytLevel = 1;
   const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.async = true;
   sc.onerror = function () { ytFailed = true; }; document.head.appendChild(sc);
 })();
+function ytSet(v) { ytLevel = v; if (ytReady) { try { yt.setVolume(YT_VOL * v); } catch (_) {} } }
+function ytFadeTo(target, ms) {                                                              // smooth volume ramp
+  clearInterval(ytFade); const from = ytLevel, t0 = performance.now();
+  ytFade = setInterval(function () {
+    const k = Math.min(1, (performance.now() - t0) / ms); ytSet(from + (target - from) * k);
+    if (k >= 1) clearInterval(ytFade);
+  }, 50);
+}
+/* On her first touch the player only warms up, muted and silent, so the browser allows it to play later without another tap. */
+function ytPrime() {
+  if (!ytReady || revealed || ytPrimed || !soundOn || ytFailed) return;
+  ytPrimed = true; try { yt.mute(); ytMuted = true; yt.playVideo(); } catch (_) {}
+}
+/* The song starts here, and only once the bouquet page is showing. */
 function bgStart() {
+  if (!revealed || !soundOn) return;
   ytWant = true;
   if (ytFailed) { musStart(); return; }
-  if (ytReady && soundOn) { try { yt.setVolume(YT_VOL * ytLevel); yt.playVideo(); } catch (_) {} }
+  if (!ytReady) return;                                                                        // onReady will call this again
+  try {
+    const first = !songStarted; songStarted = true;
+    if (first) { yt.seekTo(0, true); ytSet(0); }                                               // the song begins from its very start
+    if (ytMuted) { yt.unMute(); ytMuted = false; }
+    yt.playVideo(); ytFadeTo(1, first ? 3500 : 1200);                                          // drifts in softly as the flowers bloom
+    setTimeout(function () { try { const st = yt.getPlayerState(); if (ytWant && soundOn && st !== 1 && st !== 3) ytNeedsTap = true; } catch (_) {} }, 1200);
+  } catch (_) {}
 }
-function bgPause() { ytWant = false; if (ytReady) { try { yt.pauseVideo(); } catch (_) {} } }
-function bgLevel(v) { ytLevel = v; if (ytReady) { try { yt.setVolume(YT_VOL * v); } catch (_) {} } }
-function firstGesture() { audioInit(); if (AC && AC.state === 'suspended') AC.resume(); bgStart(); }
+window.__song = function () { revealed = true; bgStart(); };
+['pointerdown', 'pointerup', 'touchend', 'keydown'].forEach(function (n) {                       // if the browser held the song back, her next touch starts it
+  document.addEventListener(n, function () { if (ytNeedsTap) { ytNeedsTap = false; bgStart(); } }, { passive: true, capture: true });
+});
+function bgPause() { ytWant = false; clearInterval(ytFade); if (ytReady) { try { yt.pauseVideo(); } catch (_) {} } }
+function firstGesture() { ytGesture = true; audioInit(); if (AC && AC.state === 'suspended') AC.resume(); ytPrime(); bgStart(); }
+['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.addEventListener(n, firstGesture, { passive: true, once: true }); });
 gate.addEventListener('pointerdown', firstGesture, { passive: true });
 gate.addEventListener('keydown', firstGesture);
 document.addEventListener('visibilitychange', function () { if (!AC) return; if (document.hidden) AC.suspend(); else if (soundOn) AC.resume(); });
 snd.addEventListener('click', function () {
   soundOn = !soundOn; snd.setAttribute('aria-pressed', String(soundOn));
-  if (soundOn) { audioInit(); if (AC && AC.state === 'suspended') AC.resume(); bgStart(); } else { chargeStop(); musStop(.15); bgPause(); }
+  if (soundOn) { ytGesture = true; audioInit(); if (AC && AC.state === 'suspended') AC.resume(); ytPrime(); bgStart(); } else { chargeStop(); musStop(.15); bgPause(); }
 });
 const HOLD_SECONDS = 3.6;                                  // <- how long she has to hold (seconds)
 const btn = document.getElementById('openBtn'), hint = document.getElementById('hint'), ringP = btn.querySelector('.prog');
@@ -1753,19 +1779,16 @@ const first = sheet.querySelector('p.b:not(.em)'); if (first) first.classList.ad
 /* The letter is paced like someone reading it aloud: one line at a time, top to bottom, and the next line
    only begins after a pause that grows with the length of the line before it. A line also waits until it has scrolled into view. */
 const PAUSE_BASE = 550, PAUSE_PER_CHAR = 4, PAUSE_MAX = 1600;          // ms — raise these to slow the letter down further
-let next = 0, busy = false, queued = false;
+let next = 0, queued = false;
 function step() {
   queued = false;
-  if (busy || next >= kids.length) return;
-  const el = kids[next];
-  if (el.getBoundingClientRect().top > scroller.clientHeight * 0.94) return;                    // not scrolled to yet
-  el.classList.add('vis'); next++;
-  window.dispatchEvent(new CustomEvent('letter:line', { detail: { el: el } }));
-  if (next >= kids.length) setTimeout(function () { window.dispatchEvent(new Event('letter:end')); }, reduce ? 0 : 1400);
-  if (reduce) { step(); return; }
-  busy = true;
-  const len = (el.textContent || '').trim().length;
-  setTimeout(function () { busy = false; step(); }, Math.min(PAUSE_MAX, PAUSE_BASE + len * PAUSE_PER_CHAR));
+  while (next < kids.length) {                                                                   // reveal every line that has scrolled into view
+    const el = kids[next];
+    if (el.getBoundingClientRect().top > scroller.clientHeight * 0.9) break;
+    el.classList.add('vis'); next++;
+    window.dispatchEvent(new CustomEvent('letter:line', { detail: { el: el } }));
+    if (next >= kids.length) setTimeout(function () { window.dispatchEvent(new Event('letter:end')); }, reduce ? 0 : 1400);
+  }
 }
 const queue = function () { if (!queued) { queued = true; requestAnimationFrame(step); } };
 scroller.addEventListener('scroll', queue, { passive: true });
