@@ -1,0 +1,1782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0510">
+<title>Hortus Nocturne — A 3D ASCII Bouquet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: dark; background: #0a0510;
+    --sat: env(safe-area-inset-top, 0px); --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); }
+  html, body { margin: 0; height: 100%; background: #0a0510; overflow: hidden; overscroll-behavior: none; }
+  body { position: fixed; inset: 0; -webkit-user-select: none; user-select: none;
+         -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+  #scroller { position: absolute; inset: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; outline: none; }
+  #scroller::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .vignette { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 46%, transparent 60%, rgba(14,4,16,.45) 86%, rgba(6,1,8,.85) 100%); }
+
+  /* Bouquet area + message + letter cue share one flex box, so they can never overlap.
+     Portrait / normal screens stack them; short landscape screens put them side by side. */
+  .layout { position: relative; height: 100%; box-sizing: border-box; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(4px, 1.4vh, 18px);
+    padding: calc(var(--sat) + 26px) calc(var(--sar) + 14px) calc(var(--sab) + 40px) calc(var(--sal) + 14px); }
+  .art { flex: 0 1 auto; width: 100%; aspect-ratio: 1.315; min-height: 0; }
+  .side { flex: none; width: 100%; max-width: 760px; display: flex; flex-direction: column; align-items: center; }
+
+  .msg { box-sizing: border-box; width: 100%; padding: 0 4px; text-align: center; color: #f8e4e4;
+    font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif; opacity: 0; }
+  body.go .msg { animation: fadein 3.4s ease 1.6s forwards; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .msg .orn { color: rgba(232,160,170,.8); letter-spacing: .7em; text-indent: .7em; font-size: clamp(11px, 1.5vw, 15px); margin: 0 0 .8em; }
+  .msg .line { margin: 0; font-style: italic; font-weight: 400; line-height: 1.45; letter-spacing: .01em;
+    font-size: clamp(17px, min(2.35vw, 3.4vh), 29px); text-shadow: 0 0 20px rgba(255,170,190,.25); }
+  .msg .line span { display: block; text-wrap: balance; }
+  .msg .sub { margin: 1.1em 0 0; font-size: clamp(9px, 1.2vw, 13px); line-height: 1.5; letter-spacing: .52em; text-indent: .52em;
+    text-transform: uppercase; color: #e8a3ae; display: flex; align-items: center; justify-content: center; gap: 1.2em; }
+  .msg .sub::before, .msg .sub::after { content: ''; flex: 0 1 clamp(24px, 6vw, 70px); height: 1px; background: linear-gradient(90deg, transparent, rgba(232,163,174,.6)); }
+  .msg .sub::after { transform: scaleX(-1); }
+
+  #gate { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: calc(var(--sat) + 16px) calc(var(--sar) + 8vw) calc(var(--sab) + 16px) calc(var(--sal) + 8vw); box-sizing: border-box; color: #f8e4e4; overflow: hidden;
+    font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    background: radial-gradient(ellipse at 50% 42%, #2e1226 0%, #170a1b 52%, #07030c 100%);
+    transition: opacity 1.5s ease, visibility 0s linear 1.5s; }
+  #gate.out { opacity: 0; visibility: hidden; pointer-events: none; }
+  #gateCv { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #heartSpace { position: relative; width: 100%; height: min(38vh, 74vw); flex: 0 1 auto; min-height: 0; }
+  #gate .ui { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity .6s ease, transform .6s ease; }
+  #gate.burst .ui { opacity: 0; transform: translateY(8px); pointer-events: none; }
+  #gate .orn { margin: 0 0 1em; color: rgba(232,160,170,.8); letter-spacing: .7em; text-indent: .7em; font-size: clamp(11px, 2.4vw, 15px); opacity: 0; animation: fadein 2s ease .2s forwards; }
+  #gate .hello { margin: 0; font-style: italic; font-size: clamp(24px, 5vw, 36px); line-height: 1.45; letter-spacing: .015em;
+    text-shadow: 0 0 22px rgba(255,170,190,.3); opacity: 0; animation: fadein 2.4s ease .8s forwards; }
+  #gate .hello span { display: block; text-wrap: balance; }
+  #gate .hello small { display: block; margin-top: .55em; font-size: .52em; letter-spacing: .08em; color: #e8a3ae; }
+  #gate .hello .h1 { font-size: 1.22em; letter-spacing: .02em; text-shadow: none;
+    background: linear-gradient(100deg, #ffd9e0 0%, #ffd9e0 30%, #fff7f0 42%, #ffb3c8 52%, #ffe2bd 60%, #ffd9e0 72%, #ffd9e0 100%); background-size: 260% 100%;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+    filter: drop-shadow(0 0 14px rgba(255,150,180,.4)); animation: rise 1.8s cubic-bezier(.2,.7,.2,1) 1s both, shimmer 7s linear 2.8s infinite; }
+  #gate .hello .h2 { margin-top: .3em; font-size: .7em; color: #f0b8c4; letter-spacing: .06em; animation: rise 1.8s cubic-bezier(.2,.7,.2,1) 2.1s both; }
+  #gate .hello small { display: flex; align-items: center; justify-content: center; gap: 1em; margin-top: 1em; font-size: .4em; font-style: normal; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; color: #e8a3ae; animation: rise 1.8s ease 3s both; }
+  #gate .hello small::before, #gate .hello small::after { content: ''; width: 2.6em; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,163,174,.75)); }
+  #gate .hello small::after { transform: scaleX(-1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+  #gate .openwrap { margin-top: 1.9em; display: flex; flex-direction: column; align-items: center; gap: 1.3em; opacity: 0; visibility: hidden; animation: fadeinLive 2.2s ease 2.2s forwards; }
+  #openBtn { --p: 0; position: relative; width: clamp(84px, 22vw, 112px); aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; background: none;
+    cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; touch-action: none;
+    transform: translate(var(--sx, 0px), var(--sy, 0px)) rotate(var(--sr, 0deg)) scale(calc(1 - .07 * var(--p))); transition: transform .15s ease; }
+  #openBtn.holding { transition: none; }
+  #openBtn:focus-visible { outline: 2px solid rgba(255,190,205,.7); outline-offset: 8px; border-radius: 50%; }
+  #openBtn .disc { position: absolute; inset: 9%; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #4d1d3b 0%, #2b1025 55%, #1a0916 100%);
+    box-shadow: inset 0 0 0 1px rgba(232,163,174,.4), inset 0 3px 12px rgba(255,170,200,.14),
+                0 0 calc(18px + 46px * var(--p)) rgba(255,110,150,calc(.25 + .45 * var(--p))); }
+  #openBtn .rose { position: absolute; inset: 14%; display: block; transform: scale(calc(1 + .08 * var(--p))); pointer-events: none; }
+  #openBtn .rose svg { width: 100%; height: 100%; overflow: visible; animation: breathe 4.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 calc(3px + 8px * var(--p)) rgba(240,205,150,calc(.30 + .45 * var(--p)))); }
+  #openBtn .rose g.ln { fill: none; stroke: #ecd3a0; stroke-linecap: round; stroke-linejoin: round; }
+  #openBtn .rose .pet { transform-origin: 50px 50px; transform-box: view-box; }
+  #openBtn .rose .o .pet { stroke-width: .9; opacity: calc(.42 + .58 * var(--p));
+    fill: rgba(240,210,160,calc(.03 + .06 * var(--p))); transform: rotate(calc(var(--a) + 9deg * var(--p))) scale(calc(.86 + .14 * var(--p))); }
+  #openBtn .rose .m .pet { stroke-width: .9; opacity: calc(.7 + .3 * var(--p)); transform: rotate(calc(var(--a) - 6deg * var(--p))); }
+  #openBtn .rose .i path { stroke-width: .9; opacity: .95; }
+  #openBtn .ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; pointer-events: none; }
+  #openBtn .ring circle { fill: none; }
+  #openBtn .track { stroke: rgba(232,163,174,.4); stroke-width: 2; stroke-dasharray: .5 5.6; stroke-linecap: round; }
+  #openBtn .prog { stroke: url(#rg); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 339.3; stroke-dashoffset: 339.3; filter: drop-shadow(0 0 4px rgba(255,150,180,.9)); }
+  #openBtn .ripple { position: absolute; inset: 9%; border-radius: 50%; border: 1px solid rgba(255,150,180,.55); pointer-events: none; animation: ripple 2.4s ease-out infinite; }
+  #openBtn .ripple.r2 { animation-delay: 1.2s; }
+  #openBtn .orbit { position: absolute; inset: -9px; pointer-events: none; animation: spin 7s linear infinite; }
+  #openBtn .orbit::before, #openBtn .orbit::after { content: '\2726'; position: absolute; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffd6de; text-shadow: 0 0 8px rgba(255,170,190,.95); }
+  #openBtn .orbit::before { top: -3px; }
+  #openBtn .orbit::after { bottom: -3px; content: '\00B7'; font-size: 18px; opacity: .6; }
+  #openBtn.holding .orbit { animation-duration: 1.1s; }
+  #openBtn.holding .rose svg { animation-duration: 1.6s; }
+  #snd { position: relative; width: 30px; height: 30px; margin: -.4em 0 0; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; display: grid; place-items: center;
+    color: #e8a3ae; opacity: .32; -webkit-tap-highlight-color: transparent; transition: opacity .3s ease, color .3s ease; }
+  #snd:hover, #snd:focus-visible { opacity: .8; outline: none; }
+  #snd svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  #snd .off { display: none; }
+  #snd[aria-pressed="false"] { opacity: .22; }
+  #snd[aria-pressed="false"] .on { display: none; }
+  #snd[aria-pressed="false"] .off { display: block; }
+  #gate .hint { margin: 0; min-height: 1.5em; font-size: clamp(11px, 2.5vw, 14px); letter-spacing: .46em; text-indent: .46em; text-transform: uppercase; color: #e8a3ae; }
+  #gate .hint.nudge { animation: nudge .5s ease; }
+  @keyframes breathe { 0%,100% { transform: scale(1) rotate(-2deg); } 50% { transform: scale(1.045) rotate(2deg); } }
+  @keyframes ripple { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.6); opacity: 0; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes nudge { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+  @media (prefers-reduced-motion: reduce) { #openBtn svg, #openBtn .ripple, #openBtn .orbit { animation: none; } }
+  #cue { position: relative; flex: none; z-index: 5; margin: 0; padding: .5em 1.2em .2em; background: none; border: 0; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: .1em; opacity: 0; visibility: hidden; pointer-events: none; color: #f0b8c4; font: inherit; -webkit-tap-highlight-color: transparent;
+    font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, Georgia, serif; }
+  body.go #cue { pointer-events: auto; animation: fadeinLive 1s ease 5s forwards; }
+  #cue .t { font-size: clamp(11px, 2.4vw, 14px); letter-spacing: .44em; text-indent: .44em; text-transform: uppercase; font-style: italic; text-shadow: 0 0 14px rgba(255,150,180,.35); }
+  #cue .c { font-size: 18px; line-height: 1; color: #e8a3ae; animation: bob 2.2s ease-in-out infinite; }
+  #cue:hover .t, #cue:focus-visible .t { color: #ffd9e0; }
+  #cue:focus-visible { outline: 1px solid rgba(255,190,205,.6); outline-offset: 4px; border-radius: 10px; }
+  @keyframes fadeinLive { 0%, 34% { opacity: 0; transform: translateY(6px); visibility: hidden; } 35% { visibility: visible; } 100% { opacity: 1; transform: none; visibility: visible; } }
+  @keyframes bob { 0%,100% { transform: translateY(0); opacity: .6; } 50% { transform: translateY(4px); opacity: 1; } }
+  /* the letter: text on the night sky, each line drifting in (and sharpening) as you scroll to it.
+     All sizes are em, from one fluid font-size, so type and line length scale together. */
+  #letter { position: relative; isolation: isolate; box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: clamp(17px, min(1vw + 14px, 3.8vh + 8px), 30px); outline: none;
+    padding: calc(var(--sat) + 4em) calc(var(--sar) + 1.5em) calc(var(--sab) + 4em) calc(var(--sal) + 1.5em); }
+  #letter::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28%, #000 72%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 28%, #000 72%, transparent 100%);
+    background: radial-gradient(ellipse 70% 36% at 50% 20%, rgba(255,120,160,.14), transparent 70%), radial-gradient(ellipse 60% 28% at 50% 90%, rgba(255,150,120,.08), transparent 70%); }
+  #letter .sheet { position: relative; width: min(36em, 100%); box-sizing: border-box; padding: 0 .9em; outline: none; -webkit-user-select: text; user-select: text;
+    color: #f6e3e3; letter-spacing: .012em; text-shadow: 0 1px 14px rgba(10,5,16,.85), 0 0 3px rgba(10,5,16,.6);
+    font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif; }
+  #letter .sheet > * { opacity: 0; transform: translateY(16px); filter: blur(6px);
+    transition: opacity 1.6s ease, transform 1.6s cubic-bezier(.2,.7,.2,1), filter 1.6s ease; }
+  #letter .sheet > *.vis { opacity: 1; transform: none; filter: none; }
+  #letter .orn { margin: 0 0 .9em; text-align: center; color: rgba(232,160,170,.9); letter-spacing: .7em; text-indent: .7em; font-size: .65em; }
+  #letter .sheet > h2 { margin: 0 0 .6em; text-align: center; font-weight: 400; font-style: italic; font-size: 2.3em; line-height: 1.15; text-shadow: none;
+    background: linear-gradient(100deg, #ffd9e0 0%, #ffd9e0 30%, #fff7f0 42%, #ffb3c8 52%, #ffe2bd 60%, #ffd9e0 72%, #ffd9e0 100%); background-size: 260% 100%;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+    animation: shimmer 7s linear infinite; filter: blur(6px) drop-shadow(0 0 0 rgba(255,150,180,0)); }
+  #letter .sheet > h2.vis { filter: blur(0) drop-shadow(0 0 16px rgba(255,150,180,.4)); }
+  #letter p.b { margin: 0 0 1.15em; font-size: 1em; line-height: 1.75; text-wrap: pretty; }
+  #letter p.b.em { font-style: italic; font-size: 1.12em; color: #ffd9e0; text-align: center; }
+  #letter p.dc::first-letter { font-style: italic; font-size: 1.75em; line-height: 1; color: #f6a9bd; text-shadow: 0 0 18px rgba(255,140,170,.5); }
+  @supports (initial-letter: 2) or (-webkit-initial-letter: 2) { #letter p.dc::first-letter { -webkit-initial-letter: 2; initial-letter: 2; font-size: inherit; line-height: inherit; margin-right: .12em; } }
+  #letter .sig { margin: 1.6em 0 0; text-align: center; font-style: italic; font-size: 1.4em; color: #f4adbf; text-shadow: 0 0 20px rgba(255,140,170,.4); }
+  #letter .sig::after { content: ' \2665'; display: inline-block; color: #ff8fae; animation: beat 2.2s ease-in-out infinite; }
+  #letter .rule { margin: 1.8em auto 0; display: flex; align-items: center; justify-content: center; gap: .9em; color: #e8a3ae; font-size: .8em; }
+  #letter .rule::before, #letter .rule::after { content: ''; width: 4em; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,163,174,.75)); }
+  #letter .rule::after { transform: scaleX(-1); }
+  @keyframes shimmer { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+  @keyframes beat { 0%, 55%, 100% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1.05); } 42% { transform: scale(1.22); } }
+  @media (prefers-reduced-motion: reduce) {
+    #letter .sheet > * { transition: none; transform: none; filter: none; opacity: 1; }
+    #letter .sheet > h2, #letter .sig::after { animation: none; }
+  }
+  /* slots the bouquet glides into: one opens the letter, one seals it */
+  .emblem { flex: none; width: min(13em, 72vw); aspect-ratio: 1.315; margin: 0 auto .3em; pointer-events: none; }
+  .seal { flex: none; width: min(9em, 50vw); aspect-ratio: 1; margin: .8em auto 0; pointer-events: none; }
+  @media (orientation: landscape) and (max-height: 560px) { .emblem { width: min(10em, 46vh); } .seal { width: min(6em, 30vh); } }
+  /* letter extras: date line, highlighted words, whispers in the margin, reasons list, polaroid, P.S. */
+  #letter .date { margin: 0 0 1.1em; text-align: center; font-size: .62em; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; color: #e8a3ae; }
+  #letter .hl { font-style: italic; color: #ffd9e0; padding: 0 .12em; background: linear-gradient(transparent 64%, rgba(255,120,160,.30) 64%); }
+  #letter p.b { position: relative; }
+  #letter .mn { display: block; margin-top: .55em; text-align: right; font-style: italic; font-size: .76em; line-height: 1.4; color: #e8a3ae; }
+  #letter .mn::before { content: '\2014\00a0'; }
+  @media (min-width: 1700px) {                                   /* big screens: the whispers sit out in the margins */
+    #letter .mn { position: absolute; top: .2em; width: 9em; margin: 0; font-size: .74em; }
+    #letter .mn.r { left: calc(100% + 1.4em); text-align: left; }
+    #letter .mn.l { right: calc(100% + 1.4em); text-align: right; }
+    #letter .mn::before { content: none; }
+  }
+  #letter .reasons { margin: .4em 0 1.6em; padding: 1.1em 1.3em; border-left: 1px solid rgba(232,163,174,.55); background: linear-gradient(90deg, rgba(255,120,160,.08), transparent); }
+  #letter .reasons .rh { margin: 0 0 .8em; font-size: .62em; letter-spacing: .45em; text-transform: uppercase; color: #e8a3ae; }
+  #letter .reasons ol { list-style: none; margin: 0; padding: 0; }
+  #letter .reasons li { position: relative; margin: 0 0 .55em; padding-left: 1.8em; line-height: 1.55; opacity: 0; transform: translateX(-10px);
+    transition: opacity 1.1s ease, transform 1.1s ease; transition-delay: calc(var(--i) * .5s); }
+  #letter .reasons li::before { content: '\2726'; position: absolute; left: 0; top: .26em; font-size: .75em; color: #f0c8a0; }
+  #letter .reasons.vis li { opacity: 1; transform: none; }
+  #letter .polaroid { margin: 1.4em auto 2.2em; width: min(15em, 80%); }
+  #letter .polaroid .ph { transform: rotate(-2.2deg); padding: .6em .6em 1.7em; background: #f6ece4; box-shadow: 0 10px 40px rgba(0,0,0,.55), 0 0 30px rgba(255,140,170,.18); text-shadow: none; }
+  #letter .polaroid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; filter: sepia(.18) saturate(.95); }
+  #letter .polaroid figcaption { margin-top: .7em; text-align: center; font-style: italic; font-size: .95em; color: #5a3a46; }
+  #letter .ps { margin: 1.1em 0 0; text-align: center; font-style: italic; font-size: .95em; color: #f0c6d0; }
+  @media (prefers-reduced-motion: reduce) { #letter .reasons li { opacity: 1; transform: none; transition: none; } }
+  .ns { position: absolute; inset: 0; display: grid; place-items: center; margin: 0;
+        color: #d9b36a; font: 14px/1.5 monospace; text-align: center; }
+
+  @media (max-width: 520px) {
+    .msg .sub { font-size: 10px; letter-spacing: .3em; text-indent: .3em; gap: .8em; }
+    .msg .sub::before, .msg .sub::after { flex-basis: 16px; }
+    .msg .orn { font-size: 11px; }
+    #gate .hint { letter-spacing: .32em; text-indent: .32em; }
+    #cue .t { letter-spacing: .3em; text-indent: .3em; }
+  }
+  /* short landscape (phones on their side): artwork left, text right */
+  @media (orientation: landscape) and (max-height: 560px) {
+    .layout { flex-direction: row; gap: 2vw;
+      padding: calc(var(--sat) + 18px) calc(var(--sar) + 24px) calc(var(--sab) + 18px) calc(var(--sal) + 24px); }
+    .art { flex: 1 1 0; width: auto; height: 100%; aspect-ratio: auto; min-width: 0; }
+    .side { flex: 0 0 clamp(220px, 36vw, 400px); width: auto; }
+    .msg .line { font-size: clamp(14px, 4.4vh, 24px); }
+    .msg .orn { font-size: 11px; margin-bottom: .5em; }
+    .msg .sub { font-size: clamp(8px, 2.3vh, 11px); letter-spacing: .26em; text-indent: .26em; margin-top: .8em; }
+    #gate { flex-direction: row; gap: 2vw; padding: calc(var(--sat) + 14px) calc(var(--sar) + 24px) calc(var(--sab) + 14px) calc(var(--sal) + 24px); }
+    #heartSpace { flex: 1 1 0; width: auto; height: 100%; min-width: 0; }
+    #gate .ui { flex: 0 0 clamp(230px, 42vw, 420px); }
+    #gate .hello { font-size: clamp(18px, 5.4vh, 30px); }
+    #gate .orn { margin-bottom: .5em; }
+    #gate .openwrap { margin-top: 1em; gap: .8em; }
+    #openBtn { width: clamp(60px, 24vh, 96px); }
+  }
+  @media (prefers-reduced-motion: reduce) { body.go .msg { animation-duration: .01s; animation-delay: 0s; } }
+</style>
+</head>
+<body>
+<canvas id="stage" role="img"
+  aria-label="A slowly rotating three-dimensional bouquet of blue bellflowers and pink azaleas with cream roses, white lilies, daisies and baby's breath, sculpted from ASCII characters on a midnight background."></canvas>
+<div class="vignette"></div>
+<div id="scroller" tabindex="-1">
+<main class="layout">
+  <div class="art" id="art" aria-hidden="true"></div>
+  <div class="side">
+<div class="msg" id="msg">
+  <p class="orn" aria-hidden="true">&middot; &#10084; &middot;</p>
+  <p class="line"><span>Of all the beautiful things this world could offer,</span><span>my heart will always choose you.</span></p>
+  <p class="sub">Happy Monthsary, my love</p>
+</div>
+  <button id="cue" type="button" aria-haspopup="dialog"><span class="t">read my letter</span><span class="c" aria-hidden="true">&#8964;</span></button>
+  </div>
+</main>
+<section id="letter" aria-label="A letter for you" tabindex="-1">
+  <div class="emblem" id="emblem" aria-hidden="true"></div>
+  <div class="sheet" id="sheet" tabindex="-1">
+    <!-- ===== EDIT YOUR LETTER HERE: change the text inside each <p>, add or remove paragraphs freely ===== -->
+    <p class="orn">&middot; &#10022; &middot;</p>
+    <p class="date">For us, through everything</p>
+    <h2>My love,</h2>
+    <p class="b em">Two months of finding home in each other.</p>
+    <p class="b">Loving you feels like finding freedom in a world that sometimes asks too much of me. There&rsquo;s something about the thought of you that makes everything feel a little lighter, as if even from a distance, you give me somewhere to breathe. <span class="hl">And whenever I&rsquo;m with you, I feel free to simply exist, without having to figure everything out.</span> It&rsquo;s a kind of peace I never knew I needed, and somehow, I&rsquo;ve found it in you.<span class="mn r">I hope you feel this with me</span></p>
+    <p class="b">This month hasn&rsquo;t exactly been kind to us. We&rsquo;ve both had our own battles, our own worries, and days when things felt a little heavier than usual. And although we haven&rsquo;t been fighting each other, we&rsquo;ve been fighting through things of our own. But what stays with me is how, through it all, we never forget to let each other in. No matter how difficult something gets, we still find our way to tell each other, to listen, and to remind one another that we don&rsquo;t have to carry everything alone.<span class="mn l">even on our tired days</span></p>
+    <p class="b">I think that&rsquo;s when I began to understand something about us: love isn&rsquo;t necessarily the absence of difficult days. Sometimes, it&rsquo;s having someone who makes those days a little less lonely. It&rsquo;s knowing that even when life gets overwhelming, I have you to turn to, and you have me, too. And I wouldn&rsquo;t trade that kind of love for anything.</p>
+    <!-- ===== REASONS LIST: edit the lines, add or remove <li> (keep the --i numbers counting up) ===== -->
+    <div class="reasons"><p class="rh">What I hold onto</p><ol>
+      <li style="--i:0">The way you make even my most ordinary days feel worth remembering.</li>
+      <li style="--i:1">How, even when life gets difficult, we never forget to make time for us.</li>
+      <li style="--i:2">The comfort of knowing I can tell you anything, even the things I struggle to put into words.</li>
+      <li style="--i:3">That we don&rsquo;t have to have everything figured out to keep choosing each other.</li>
+    </ol></div>
+    <p class="b">And another thing I find beautiful about us is that no matter how much life demands from us, we still find little spaces in between to be together. Even when our days are full, even when our minds are somewhere else, we make time for the little conversations, the laughter, and the moments that belong only to us. I know it may seem like something small, but to me, it means more than you realize.</p>
+    <p class="b">I also want you to know how proud I am of you. Even in a month that asked so much of you, you kept working toward what matters to you, and your recent accomplishments are proof of that. None of it happened by accident. It came from your effort, your patience, and the way you keep going even on the days you&rsquo;re tired. I&rsquo;m so happy for you, and I feel lucky to be the one cheering for you up close.</p>
+    <p class="b">I don&rsquo;t expect every month to be perfect, and I don&rsquo;t expect us to have all the answers whenever life gets difficult. There will be days when things aren&rsquo;t as light as we&rsquo;d like them to be. But I hope we never lose this part of us: the willingness to communicate, to understand, to make room for each other, and to remember that we&rsquo;re on the same side.</p>
+    <!-- ===== PHOTO: remove the comment markers and put your photo file name in src =====
+    <figure class="polaroid"><div class="ph"><img src="our-photo.jpg" alt=""><figcaption>our favourite day</figcaption></div></figure>
+    ======================================================================================= -->
+    <p class="b">Two months may not seem like a long time to some, but I&rsquo;m grateful for every little thing we&rsquo;ve shared within it. For the good days, the difficult ones, and all the ordinary moments in between. If there&rsquo;s one thing I want you to know, it&rsquo;s that I&rsquo;m not only happy to be with you when life is gentle. I want to be here when it isn&rsquo;t, too.</p>
+    <p class="b em">And if I had to choose again, I&rsquo;d still find my way to you.</p>
+    <p class="sig">Yours, always.</p>
+    <p class="ps">P.S. Even on the days when the world feels a little too heavy, I hope you never forget that you have me.</p>
+    <div class="rule" aria-hidden="true">&#10084;</div>
+    <!-- ===== END OF LETTER ===== -->
+  </div>
+  <div class="seal" id="seal" aria-hidden="true"></div>
+</section>
+</div>
+
+
+<div id="gate">
+  <canvas id="gateCv" aria-hidden="true"></canvas>
+  <div id="heartSpace" aria-hidden="true"></div>
+  <div class="ui">
+    <p class="orn" aria-hidden="true">&middot; &#10022; &middot;</p>
+    <p class="hello"><span class="h1">A surprise, my love.</span><span class="h2">I made you a little garden.</span></p>
+    <div class="openwrap">
+      <button id="openBtn" type="button" aria-label="Press and hold to open">
+        <span class="ripple"></span><span class="ripple r2"></span>
+        <span class="disc"></span>
+        <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd2bf"/><stop offset=".5" stop-color="#ff8fb0"/><stop offset="1" stop-color="#e8a3ae"/></linearGradient></defs>
+          <circle class="track" cx="60" cy="60" r="54"/><circle class="prog" cx="60" cy="60" r="54"/>
+        </svg>
+        <span class="rose" aria-hidden="true"><svg viewBox="0 0 100 100">
+          <g class="ln">
+            <g class="o"><path class="pet" pathLength="1" style="--a:0deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:72deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:144deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:216deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:288deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/></g>
+            <g class="m"><path class="pet"  style="--a:36deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:108deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:180deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:252deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:324deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/></g>
+            <g class="i"><path d="M50.8 50.6 L50.8 50.8 L50.7 51.1 L50.5 51.4 L50.2 51.6 L49.8 51.8 L49.4 51.9 L48.9 51.8 L48.5 51.7 L48.0 51.4 L47.6 51.0 L47.3 50.5 L47.1 49.9 L47.0 49.3 L47.1 48.6 L47.3 47.9 L47.7 47.3 L48.3 46.7 L49.0 46.3 L49.8 46.0 L50.7 45.9 L51.6 45.9 L52.5 46.2 L53.4 46.7 L54.1 47.4 L54.7 48.3 L55.1 49.3 L55.3 50.5 L55.2 51.6 L54.9 52.8 L54.3 53.8 L53.5 54.8 L52.5 55.6 L51.3 56.1 L49.9 56.4 L48.5 56.4 L47.1 56.1 L45.8 55.5 L44.6 54.6 L43.6 53.4 L42.9 52.0 L42.5 50.5 L42.4 48.9 L42.6 47.2 L43.3 45.6 L44.2 44.2 L45.5 43.0 L47.0 42.0 L48.8 41.4 L50.6 41.2 L52.5 41.4"/></g>
+          </g>
+        </svg></span>
+        <span class="orbit" aria-hidden="true"></span>
+      </button>
+      <p class="hint" id="hint" aria-live="polite">Hold to open</p>
+      <button id="snd" type="button" aria-pressed="true" aria-label="Sound" title="Sound on / off">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12.5 19V5L7.5 9.5H4z"/><path class="on" d="M16 9.2a4 4 0 0 1 0 5.6"/><path class="on" d="M18.7 6.6a8 8 0 0 1 0 10.8"/><path class="off" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>
+  </button>
+    </div>
+  </div>
+</div>
+<noscript><p class="ns">This artwork is drawn live with JavaScript. Please enable it to view the bouquet.</p></noscript>
+
+<script>
+(function () {
+'use strict';
+
+const PI = Math.PI, TAU = PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const FONT = '"JetBrains Mono","Fira Code","SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono","Courier New",monospace';
+
+/* =====================================================================
+   ENGINE  — pure maths, no DOM. Builds the bouquet as a point cloud of
+   lit surfaces, then z-buffers it into a character grid every frame.
+   ===================================================================== */
+// <ENGINE>
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+let rng = mulberry32(1);
+const hex = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
+const hexPair = p => p.map(hex);
+
+/* ---- palette (rim colour first, base/throat colour second) ----
+   Each species gets its own colour family so neighbours never melt together. */
+const PAL = {
+  champagne: hex('#f0d8a8'), gold: hex('#d9b36a'), ivory: hex('#f6eedc'),
+  sage: hex('#a4b8a6'), deepSage: hex('#3f5247'), silver: hex('#b9bfcc'), anther: hex('#b8742a'),
+  pinkFil: hex('#e3a0b6'), antherRose: hex('#8a1c48'), spot: hex('#8e1448'), pistil: hex('#e9dcc2'),
+  ribbonHi: hex('#eab5c3'), ribbonLo: hex('#8c5063'),
+  paperHi: hex('#5d7565'), paperLo: hex('#172019'),
+  sheetHi: hex('#e6dcc6'), sheetLo: hex('#5f5846'),
+  trimHi: hex('#f6e4b6'), trimLo: hex('#b8975a'),
+  leafHi: hex('#a9bead'), leafLo: hex('#2f4538'),
+  discHi: hex('#f8c94a'), discLo: hex('#9a5a18'), lilySpot: hex('#9c3a52')
+};
+const ROSES  = [['#f6e6c4', '#b08a5a'], ['#f4d0d0', '#a85a68'], ['#fbf3e2', '#b8a283'], ['#f1c9b6', '#a8604f']].map(hexPair);
+const TULIPS = [['#f7a1bb', '#b81f5a'], ['#ffe39a', '#e08a2a'], ['#fff0f3', '#e0809e']].map(hexPair);
+const LILIES = [['#fbf3e4', '#d8a64c'], ['#fffaf0', '#e6c27a']].map(hexPair);
+const SMALLS = [['#fbf3e4', '#d9b36a'], ['#f3dfb4', '#c9a35e'], ['#e8b3c1', '#b97a8c'], ['#dfe3ea', '#9aa3b5']].map(hexPair);
+const BELLS  = [['#9cb8ff', '#2646d4'], ['#86a6ff', '#3340c8'], ['#b4caff', '#3f6be6']].map(hexPair);
+const AZS    = [['#ffb0d0', '#e8408a'], ['#ff98c4', '#d02a76'], ['#ffc4dc', '#f0559a']].map(hexPair);
+const DAISYS = [['#ffffff', '#e4e2c4']].map(hexPair);
+const CARNS  = [['#f7d3dc', '#b8607a'], ['#fbf3e2', '#d8b9a2'], ['#f0c2cd', '#9d4663']].map(hexPair);
+
+/* ---- tiny vector toolkit ---- */
+const vadd = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const vsub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const vmul = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+const vdot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const vcross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const vlen = a => Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+const vnorm = a => { const l = vlen(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+const bez = (p0, p1, p2, t) => {
+  const a = (1 - t) * (1 - t), b = 2 * (1 - t) * t, c = t * t;
+  return [a * p0[0] + b * p1[0] + c * p2[0], a * p0[1] + b * p1[1] + c * p2[1], a * p0[2] + b * p1[2] + c * p2[2]];
+};
+
+/* ---- local frames: flowers are built in their own space (z = flower axis) ---- */
+const IDF = { o: [0, 0, 0], u: [1, 0, 0], v: [0, 1, 0], a: [0, 0, 1] };
+function makeFrame(o, a, spin) {
+  a = vnorm(a);
+  const h = Math.abs(a[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+  const u = vnorm(vcross(h, a)), v = vcross(a, u);
+  const cs = Math.cos(spin), sn = Math.sin(spin);
+  return {
+    o,
+    u: [u[0] * cs + v[0] * sn, u[1] * cs + v[1] * sn, u[2] * cs + v[2] * sn],
+    v: [-u[0] * sn + v[0] * cs, -u[1] * sn + v[1] * cs, -u[2] * sn + v[2] * cs],
+    a
+  };
+}
+function leafFrame(o, d) {
+  d = vnorm(d);
+  const dn = [0, -1, 0];
+  let v = vsub(dn, vmul(d, vdot(dn, d)));
+  if (vlen(v) < 0.05) v = [1, 0, 0];
+  v = vnorm(v);
+  return { o, u: vcross(v, d), v, a: d };
+}
+const toWorld = (F, x, y, z) => [
+  F.o[0] + x * F.u[0] + y * F.v[0] + z * F.a[0],
+  F.o[1] + x * F.u[1] + y * F.v[1] + z * F.a[1],
+  F.o[2] + x * F.u[2] + y * F.v[2] + z * F.a[2]];
+const dirWorld = (F, x, y, z) => [
+  x * F.u[0] + y * F.v[0] + z * F.a[0],
+  x * F.u[1] + y * F.v[1] + z * F.a[1],
+  x * F.u[2] + y * F.v[2] + z * F.a[2]];
+
+/* ---- point-cloud store ---- */
+const K = { ROSE: 0, TULIP: 1, STAR: 2, LEAF: 3, STEM: 4, PAPER: 5, RIBBON: 6, GOLD: 7, GYP: 8, BELL: 9, AZ: 10, DAISY: 11, CARN: 12 };
+const G = { n: 0, cap: 0, P: null, N: null, C: null, AO: null, K: null, ID: null };
+let curId = 0;                                             // every flower head / leaf / stem gets its own id
+const nid = () => { curId = (curId + 1) & 0xFFFF; return curId; };
+function allocGeometry(cap) {
+  G.cap = cap; G.n = 0;
+  G.P = new Float32Array(cap * 3); G.N = new Float32Array(cap * 3); G.C = new Float32Array(cap * 3);
+  G.AO = new Float32Array(cap); G.K = new Uint8Array(cap); G.ID = new Uint16Array(cap);
+}
+function pushPt(x, y, z, nx, ny, nz, r, g, b, ao, k) {
+  if (G.n >= G.cap) return;
+  const i = G.n++, i3 = i * 3;
+  G.P[i3] = x; G.P[i3 + 1] = y; G.P[i3 + 2] = z;
+  G.N[i3] = nx; G.N[i3 + 1] = ny; G.N[i3 + 2] = nz;
+  G.C[i3] = r; G.C[i3 + 1] = g; G.C[i3 + 2] = b;
+  G.AO[i] = ao; G.K[i] = k; G.ID[i] = curId;
+}
+let SPACING = 0.03;
+
+/* Parametric surface sampler: fn(u,v) -> [x,y,z,ao,t], u,v in 0..1 */
+function patch(F, fn, o) {
+  let lu = 0, lv = 0;
+  for (const a of [0, 0.5, 1]) {
+    let p0 = fn(0, a), p1, l = 0, i;
+    for (i = 1; i <= 8; i++) { p1 = fn(i / 8, a); l += Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]); p0 = p1; }
+    if (l > lu) lu = l;
+    p0 = fn(a, 0); l = 0;
+    for (i = 1; i <= 8; i++) { p1 = fn(a, i / 8); l += Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]); p0 = p1; }
+    if (l > lv) lv = l;
+  }
+  const nu = clamp(Math.ceil(lu / SPACING), 2, 500), nv = clamp(Math.ceil(lv / SPACING), 2, 500);
+  const c1 = o.c1, c2 = o.c2, k = o.k, jit = o.jit === undefined ? 0.07 : o.jit, e = 0.006;
+  for (let i = 0; i < nu; i++) {
+    for (let j = 0; j < nv; j++) {
+      if (G.n >= G.cap) return;
+      const u = (i + rng()) / nu, v = (j + rng()) / nv;
+      const p = fn(u, v);
+      const ua = fn(Math.max(0, u - e), v), ub = fn(Math.min(1, u + e), v);
+      const va = fn(u, Math.max(0, v - e)), vb = fn(u, Math.min(1, v + e));
+      const du = [ub[0] - ua[0], ub[1] - ua[1], ub[2] - ua[2]];
+      const dv = [vb[0] - va[0], vb[1] - va[1], vb[2] - va[2]];
+      let n = vcross(du, dv); const l = vlen(n);
+      n = l > 1e-12 ? [n[0] / l, n[1] / l, n[2] / l] : [0, 0, 1];
+      const w = toWorld(F, p[0], p[1], p[2]), nw = dirWorld(F, n[0], n[1], n[2]);
+      const t = p[4], f = 1 + (rng() - 0.5) * 2 * jit;
+      pushPt(w[0], w[1], w[2], nw[0], nw[1], nw[2],
+        lerp(c2[0], c1[0], t) * f, lerp(c2[1], c1[1], t) * f, lerp(c2[2], c1[2], t) * f, p[3], k);
+    }
+  }
+}
+/* Thin tube along a polyline (stems, twigs, stamens) */
+function tube(pts, rad, c1, c2, k, ao) {
+  const m = pts.length - 1;
+  for (let s = 0; s < m; s++) {
+    const a = pts[s], b = pts[s + 1], d = vsub(b, a), l = vlen(d);
+    if (l < 1e-6) continue;
+    const T = vmul(d, 1 / l), h = Math.abs(T[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    const U = vnorm(vcross(T, h)), V = vcross(T, U);
+    const nl = Math.max(1, Math.ceil(l / SPACING)), nr = Math.max(3, Math.ceil(TAU * rad / SPACING));
+    const tt = s / m;
+    for (let i = 0; i < nl; i++) {
+      for (let j = 0; j < nr; j++) {
+        const t = (i + rng()) / nl, ph = (j + rng()) / nr * TAU, cs = Math.cos(ph), sn = Math.sin(ph);
+        const dx = U[0] * cs + V[0] * sn, dy = U[1] * cs + V[1] * sn, dz = U[2] * cs + V[2] * sn;
+        pushPt(a[0] + d[0] * t + dx * rad, a[1] + d[1] * t + dy * rad, a[2] + d[2] * t + dz * rad, dx, dy, dz,
+          lerp(c1[0], c2[0], tt), lerp(c1[1], c2[1], tt), lerp(c1[2], c2[2], tt), ao, k);
+      }
+    }
+  }
+}
+function blob(c, rad, col, k, cnt, ao) {
+  const n = cnt || Math.max(6, Math.ceil(4 * PI * rad * rad / (SPACING * SPACING)));
+  for (let i = 0; i < n; i++) {
+    const th = rng() * TAU, z = rng() * 2 - 1, rr = Math.sqrt(1 - z * z);
+    const dx = rr * Math.cos(th), dy = rr * Math.sin(th), f = 1 + (rng() - 0.5) * 0.1;
+    pushPt(c[0] + dx * rad, c[1] + dy * rad, c[2] + z * rad, dx, dy, z, col[0] * f, col[1] * f, col[2] * f, ao || 1, k);
+  }
+}
+
+/* ---------------- flower heads ---------------- */
+function roseHead(F, s, pal) {
+  nid();
+  const KP = 22;
+  for (let k = 0; k < KP; k++) {
+    const g = k / (KP - 1);
+    const R = s * (0.30 + 0.70 * Math.pow(g, 0.85));
+    const phiR = 0.04 + 1.02 * Math.pow(g, 1.15) + (rng() - 0.5) * 0.05;
+    const hw = lerp(1.25, 0.85, g) + (rng() - 0.5) * 0.12;
+    const th = k * 2.39996 + rng() * 0.1;
+    const ext = 0.78 + 0.1 * g, flare = 0.14 * g, core = lerp(0.50, 1, Math.sqrt(g));
+    patch(F, (u, v) => {
+      const uu = u * 2 - 1;
+      const phi = phiR + 0.26 * uu * uu * (0.4 + g) + v * ext;
+      const th2 = th + uu * hw * (1 - 0.30 * v);
+      const rr = R * (1 + flare * (1 - v) * (1 - v) + 0.03 * Math.sin(uu * 3 + k));
+      const sp = Math.sin(phi);
+      let ao = lerp(0.26, 1.0, Math.pow(1 - v, 1.3)) * core;
+      if (v < 0.10) ao *= 1.34;                           // bright, rolled petal lip
+      return [rr * sp * Math.cos(th2), rr * sp * Math.sin(th2), rr * Math.cos(phi), ao, 1 - v * 0.9];
+    }, { c1: pal[0], c2: pal[1], k: K.ROSE });
+  }
+  patch(F, (u, v) => {                                   // calyx
+    const th = u * TAU, phi = 1.9 + v * (PI - 1.9), rr = 0.5 * s, sp = Math.sin(phi);
+    return [rr * sp * Math.cos(th), rr * sp * Math.sin(th), rr * Math.cos(phi), 0.8, v];
+  }, { c1: PAL.deepSage, c2: PAL.leafHi, k: K.LEAF });
+}
+function tulipHead(F, s, H, pal) {
+  nid();
+  for (let i = 0; i < 6; i++) {
+    const outer = i % 2 === 0, th0 = i * PI / 3 + (outer ? 0 : 0.04), sc = outer ? 1 : 0.90;
+    patch(F, (u, v) => {
+      const uu = u * 2 - 1;
+      const prof = 0.40 + 0.60 * Math.sin(v * PI * 0.8);
+      const flick = outer ? 0.12 * smooth(0.7, 1, v) : 0;            // outer petal tips curl out a touch
+      const r = s * sc * (prof + flick) * (1 - 0.55 * smooth(0.78, 1, v));
+      const hw = 0.62 * Math.pow(Math.max(0, Math.sin(PI * (0.05 + 0.95 * Math.pow(v, 0.8)))), 0.5) * (outer ? 1 : 0.95);
+      const th = th0 + uu * hw;
+      let ao = lerp(0.30, 1, v) * (1 - 0.30 * Math.exp(-uu * uu * 22));   // clear central crease
+      if (Math.abs(uu) > 0.90) ao *= 1.22;                              // bright petal edges
+      return [r * Math.cos(th), r * Math.sin(th), H * v, ao, v];
+    }, { c1: pal[0], c2: pal[1], k: K.TULIP });
+  }
+}
+/* radial petals fanned around the flower axis; optional dark spots (azalea, lily) */
+function starFlower(F, o) {
+  const kk = o.k === undefined ? K.STAR : o.k;
+  for (const pt of o.petals) {
+    const L = o.L * pt.Ls, Wd = o.W * pt.Ws, SN = 20, cl = [[0, 0]];
+    let r = 0, z = 0;
+    for (let i = 0; i < SN; i++) {
+      const v = (i + 0.5) / SN, e = pt.e - o.curl * v;
+      r += Math.cos(e) * L / SN; z += Math.sin(e) * L / SN; cl.push([r, z]);
+    }
+    const cen = v => {
+      const f = clamp(v, 0, 1) * SN, i = Math.min(SN - 1, Math.floor(f)), t = f - i;
+      return [lerp(cl[i][0], cl[i + 1][0], t), lerp(cl[i][1], cl[i + 1][1], t)];
+    };
+    const wAt = v => Wd * Math.pow(Math.max(0, Math.sin(PI * Math.pow(v, o.round))), o.wp);
+    const cs = Math.cos(pt.th), sn = Math.sin(pt.th);
+    patch(F, (u, v) => {
+      const uu = u * 2 - 1, c = cen(v);
+      const w = wAt(v);
+      const l = uu * w;
+      let ao = lerp(0.40, 1, Math.pow(v, 0.6)) * (1 - (o.vein || 0.3) * Math.exp(-uu * uu * 28));
+      ao *= 1 + (o.edge || 0.18) * smooth(0.55, 1, Math.abs(uu)) * smooth(0.2, 0.6, v);
+      return [c[0] * cs - l * sn, c[0] * sn + l * cs, c[1] + o.cup * uu * uu * w, ao, smooth(0, o.tmix || 0.55, v)];
+    }, { c1: o.c1, c2: o.c2, k: kk });
+    if (o.spots && pt.spots) {
+      for (let i = 0; i < pt.spots; i++) {
+        const v = (o.spotV0 || 0.30) + (o.spotV1 || 0.30) * rng(), c = cen(v), uu = (rng() - 0.5) * (o.spotU || 1.1), w = wAt(v), l = uu * w;
+        blob(toWorld(F, c[0] * cs - l * sn, c[0] * sn + l * cs, c[1] + o.cup * uu * uu * w + 0.012), o.spotR || 0.024, o.spots, kk, o.spotN || 7, 0.9);
+      }
+    }
+  }
+}
+function lilyHead(F, L, pal) {
+  nid();
+  const petals = [];
+  for (let j = 0; j < 3; j++) petals.push({ th: j * TAU / 3 + 0.2, Ls: 1, Ws: 1, e: 0.80, spots: 7 });
+  for (let j = 0; j < 3; j++) petals.push({ th: j * TAU / 3 + 0.2 + PI / 3, Ls: 0.94, Ws: 0.9, e: 0.95, spots: 7 });
+  starFlower(F, { L, W: L * 0.30, curl: 1.9, cup: 1.1, round: 0.62, wp: 0.85, vein: 0.45, petals, c1: pal[0], c2: pal[1],
+                  spots: PAL.lilySpot, spotR: 0.022, spotN: 6, spotV0: 0.12, spotV1: 0.40, spotU: 0.7 });
+  for (let j = 0; j < 6; j++) {                           // stamens
+    const th = j * TAU / 6 + 0.5, pts = [];
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10, r = L * 0.34 * t * t + 0.01;
+      pts.push(toWorld(F, r * Math.cos(th), r * Math.sin(th), 0.02 + L * 0.42 * Math.sin(t * 1.45)));
+    }
+    tube(pts, 0.007, PAL.champagne, PAL.gold, K.GOLD, 1);
+    blob(pts[10], 0.030, PAL.anther, K.GOLD, 14, 1);
+  }
+  const pp = [];
+  for (let i = 0; i <= 10; i++) { const t = i / 10; pp.push(toWorld(F, 0.03 * t * t, 0, 0.02 + L * 0.5 * t)); }
+  tube(pp, 0.009, PAL.ivory, PAL.champagne, K.GOLD, 1);
+  blob(pp[10], 0.02, PAL.champagne, K.GOLD, 10, 1);
+}
+function smallHead(F, L, pal) {
+  nid();
+  const petals = [];
+  for (let j = 0; j < 5; j++) petals.push({ th: j * TAU / 5, Ls: 1, Ws: 1, e: 0.35 });
+  starFlower(F, { L, W: L * 0.55, curl: 0.5, cup: 0.6, round: 0.5, wp: 0.7, petals, c1: pal[0], c2: pal[1] });
+  blob(toWorld(F, 0, 0, 0.02), 0.034, PAL.gold, K.GOLD, 16, 1);
+}
+
+/* --- DAISY: a flat ring of long, narrow white rays around a bold golden domed disc --- */
+function daisyHead(F, L, pal) {
+  nid();
+  const petals = [];
+  const NP = 21;
+  for (let j = 0; j < NP; j++) petals.push({ th: j * TAU / NP + (rng() - 0.5) * 0.08, Ls: 0.92 + rng() * 0.16, Ws: 1, e: 0.10 + rng() * 0.14 });
+  starFlower(F, { L, W: L * 0.13, curl: 0.34, cup: 0.25, round: 0.72, wp: 0.55, vein: 0.2, petals, c1: pal[0], c2: pal[1], k: K.DAISY });
+  patch(F, (u, v) => {
+    const th = u * TAU, r = L * 0.34 * Math.sqrt(v);
+    return [r * Math.cos(th), r * Math.sin(th), 0.03 + L * 0.20 * (1 - v * v), lerp(0.55, 1.1, 1 - v), 1 - v];
+  }, { c1: PAL.discHi, c2: PAL.discLo, k: K.GOLD, jit: 0.12 });
+}
+
+/* --- CARNATION: layered, deeply frilled dome of serrated petals --- */
+function carnationHead(F, s, pal) {
+  nid();
+  const LY = 7;
+  for (let k = 0; k < LY; k++) {
+    const g = k / (LY - 1), R = s * (0.28 + 0.72 * g), zT = s * (0.92 - 0.50 * g) + s * 0.05, zB = s * 0.08;
+    const nP = 11 + k * 3, ph = rng() * TAU, tilt = 0.5 * (1 - g);
+    patch(F, (u, v) => {
+      const th = u * TAU, ser = Math.abs(Math.sin((th + ph) * nP * 0.5)), e = Math.pow(v, 2);
+      const rr = R * (0.40 + 0.60 * Math.sqrt(v)) * (1 + 0.20 * e * ser + 0.04 * Math.sin(th * 3 + k));
+      const z = lerp(zB, zT, Math.pow(v, 0.85)) - s * 0.22 * e * ser;
+      const ao = lerp(0.28, 1, Math.pow(v, 0.9)) * (1 - 0.40 * e * (1 - ser)) * (1 + tilt * 0.2);
+      return [rr * Math.cos(th), rr * Math.sin(th), z, ao, clamp(0.15 + 0.95 * v - 0.25 * (1 - g), 0, 1)];
+    }, { c1: pal[0], c2: pal[1], k: K.CARN });
+  }
+  patch(F, (u, v) => {                                    // green calyx cup
+    const th = u * TAU, r = s * (0.20 + 0.17 * Math.sin(v * PI * 0.9));
+    return [r * Math.cos(th), r * Math.sin(th), -0.62 * s + 0.72 * s * v, 0.8, v];
+  }, { c1: PAL.leafHi, c2: PAL.deepSage, k: K.LEAF });
+}
+
+/* --- BELLFLOWER (Campanula): fused bell with five pointed, flaring lobes --- */
+function bellHead(F, H, s, pal) {
+  nid();
+  const mk = (rs, inner, c1, c2) => patch(F, (u, v) => {
+    const th = u * TAU, sn = Math.abs(Math.sin(th * 2.5)), tipf = 1 - Math.pow(sn, 0.65);
+    const Ht = H * (0.80 + 0.20 * tipf);
+    const body = 0.18 + 0.82 * (1 - Math.pow(1 - v, 2.0)) * (0.80 + 0.20 * v);
+    const flare = 0.52 * Math.pow(smooth(0.66, 1, v), 1.25) * (0.20 + 0.80 * tipf);
+    const r = s * rs * (body + flare) * (1 + 0.03 * Math.sin(th * 5));
+    let ao = lerp(0.52, 1, Math.pow(v, 0.9)) * (1 - 0.50 * Math.pow(sn, 4) * smooth(0.05, 0.75, v));
+    if (v > 0.93) ao *= 1.45;
+    if (inner) ao *= 0.30;
+    return [r * Math.cos(th), r * Math.sin(th), Ht * v, ao, clamp(v + 0.06 * Math.cos(th * 5), 0, 1)];
+  }, { c1, c2, k: K.BELL });
+  mk(1, false, pal[0], pal[1]);
+  mk(0.93, true, pal[0], pal[1]);
+  tube([toWorld(F, 0, 0, H * 0.35), toWorld(F, 0, 0, H * 1.12)], 0.006, PAL.ivory, PAL.pistil, K.GOLD, 1);
+  blob(toWorld(F, 0, 0, H * 1.12), 0.017, PAL.ivory, K.GOLD, 8, 1);
+  blob(toWorld(F, 0, 0, -0.01), s * 0.28, PAL.deepSage, K.LEAF, 0, 0.9);
+}
+function budShape(F, L, s, pal, k) {
+  nid();
+  patch(F, (u, v) => {
+    const th = u * TAU, rr = s * Math.pow(Math.sin(PI * v), 0.8) * (1 - 0.25 * v);
+    return [rr * Math.cos(th), rr * Math.sin(th), L * v, lerp(0.5, 1, v), v];
+  }, { c1: pal[0], c2: pal[1], k: k });
+}
+
+/* --- AZALEA: a funnel blossom with overlapping lobes, speckled throat and long stamens --- */
+function azaleaBloom(F, L, pal) {
+  nid();
+  const petals = [];
+  for (let j = 0; j < 5; j++) petals.push({ th: j * TAU / 5 + 0.3, Ls: j === 0 ? 1.08 : (j < 3 ? 1 : 0.94), Ws: 1, e: 0.90, spots: (j === 0 || j === 1 || j === 4) ? 5 : 0 });
+  starFlower(F, { L, W: L * 0.80, curl: 1.0, cup: 0.50, round: 0.50, wp: 0.62, vein: 0.50, edge: 0.34, tmix: 0.75, petals, c1: pal[0], c2: pal[1], k: K.AZ, spots: PAL.spot, spotR: 0.021, spotN: 6, spotV0: 0.14, spotV1: 0.22, spotU: 0.6 });
+  patch(F, (u, v) => {                                     // throat
+    const th = u * TAU, r = L * (0.07 + 0.22 * v);
+    return [r * Math.cos(th), r * Math.sin(th), L * 0.5 * v, 0.30 + 0.30 * v, v];
+  }, { c1: pal[0], c2: pal[1], k: K.AZ });
+  for (let j = 0; j < 5; j++) {                            // stamens
+    const th = j * TAU / 5 + 0.9 + (rng() - 0.5) * 0.3, ln = L * (0.85 + 0.2 * rng()), pts = [];
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10, r = L * 0.08 + L * 0.34 * t * t;
+      pts.push(toWorld(F, r * Math.cos(th), r * Math.sin(th), L * 0.05 + ln * Math.sin(t * 1.25)));
+    }
+    tube(pts, 0.005, PAL.ivory, PAL.pinkFil, K.GOLD, 1);
+    blob(pts[10], 0.018, PAL.antherRose, K.GOLD, 8, 1);
+  }
+  const pp = [];
+  for (let i = 0; i <= 10; i++) { const t = i / 10; pp.push(toWorld(F, L * 0.03 * t, 0, L * 0.05 + L * 1.05 * Math.sin(t * 1.2))); }
+  tube(pp, 0.006, PAL.pistil, PAL.ivory, K.GOLD, 1);
+  blob(pp[10], 0.016, PAL.champagne, K.GOLD, 8, 1);
+}
+function azaleaTruss(F, sc, pal) {                          // a rounded cluster of blossoms
+  const L = sc * 0.52, hub = toWorld(F, 0, 0, -0.20 * sc);
+  const bloom = (lx, ly, lz, ax, ay, az, Lb) => {
+    const o = toWorld(F, lx, ly, lz), d = vnorm(dirWorld(F, ax, ay, az));
+    azaleaBloom(makeFrame(o, d, rng() * TAU), Lb, pal);
+    nid();
+    tube([hub, vadd(o, vmul(d, -0.03))], 0.008, PAL.sage, PAL.deepSage, K.STEM, 0.9);
+  };
+  bloom(0, 0, 0.16 * sc, 0, 0, 1, L * 1.18);
+  for (let i = 0; i < 3; i++) {
+    const th = i * TAU / 3 + 0.4 + (rng() - 0.5) * 0.3, c = Math.cos(th), s = Math.sin(th);
+    bloom(0.66 * sc * c, 0.66 * sc * s, -0.02 * sc + rng() * 0.05, 0.75 * c, 0.75 * s, 0.68, L * (0.84 + 0.10 * rng()));
+  }
+  for (let i = 0; i < 2; i++) {                              // unopened buds
+    const th = i * TAU / 3 + 0.9, c = Math.cos(th), s = Math.sin(th);
+    const o = toWorld(F, 0.30 * sc * c, 0.30 * sc * s, 0.30 * sc), d = vnorm(dirWorld(F, 0.4 * c, 0.4 * s, 0.9));
+    tube([hub, o], 0.006, PAL.sage, PAL.deepSage, K.STEM, 0.9);
+    budShape(makeFrame(o, d, 0), 0.16 * sc, 0.045 * sc * 1.6, pal, K.AZ);
+  }
+  for (let i = 0; i < 4; i++) {                              // small dark leaves
+    const th = i * TAU / 4 + 0.5, c = Math.cos(th), s = Math.sin(th);
+    leafOn(leafFrame(toWorld(F, 0.2 * sc * c, 0.2 * sc * s, -0.12 * sc), dirWorld(F, c, s, -0.5)), 0.20 * sc + 0.05, 0.06, 0.25);
+  }
+}
+function leafOn(F, L, W, bend) {
+  nid();
+  patch(F, (u, v) => {
+    const uu = u * 2 - 1;
+    const w = W * Math.pow(Math.max(0, Math.sin(PI * Math.pow(v, 0.75))), 0.9);
+    let ao = lerp(0.45, 1, Math.sqrt(v)) * (1 + 0.25 * Math.exp(-uu * uu * 40));
+    return [uu * w, bend * L * v * v - 0.30 * Math.abs(uu) * w, L * v, ao, v];
+  }, { c1: PAL.leafHi, c2: PAL.leafLo, k: K.LEAF });
+}
+function spray(P, dir, len) {                              // baby's-breath filler
+  nid();
+  const tip = vadd(P, vmul(dir, len));
+  const mid = vadd(vadd(P, vmul(dir, len * 0.5)), [(rng() - 0.5) * 0.12, (rng() - 0.5) * 0.12, (rng() - 0.5) * 0.12]);
+  const pts = []; for (let i = 0; i <= 12; i++) pts.push(bez(P, mid, tip, i / 12));
+  tube(pts, 0.006, PAL.silver, PAL.sage, K.STEM, 0.9);
+  for (let i = 0; i < 9; i++) {
+    const base = bez(P, mid, tip, 0.3 + 0.7 * rng());
+    const sd = vnorm([dir[0] + (rng() - 0.5) * 1.8, dir[1] + (rng() - 0.5) * 1.8, dir[2] + (rng() - 0.5) * 1.8]);
+    const end = vadd(base, vmul(sd, 0.12 + 0.14 * rng()));
+    tube([base, end], 0.004, PAL.silver, PAL.sage, K.STEM, 0.9);
+    blob(end, 0.022 + 0.012 * rng(), PAL.ivory, K.GYP, 10, 1);
+  }
+  blob(tip, 0.03, PAL.ivory, K.GYP, 12, 1);
+}
+/* an arching bellflower stalk with hanging / outward-facing bells and buds */
+function bellSpray(P, dir, len, nb) {
+  nid();
+  const sd = vcross(dir, [0, 1, 0]), side0 = vlen(sd) < 0.1 ? [1, 0, 0] : vnorm(sd);
+  const mid = vadd(vadd(P, vmul(dir, len * 0.55)), [0, 0.14, 0]);
+  const tip = vadd(vadd(P, vmul(dir, len)), [0, -0.12, 0]);
+  const pts = []; for (let i = 0; i <= 30; i++) pts.push(bez(P, mid, tip, i / 30));
+  tube(pts, 0.016, PAL.sage, PAL.deepSage, K.STEM, 0.9);
+  for (let j = 0; j < nb; j++) {
+    const f = nb > 1 ? j / (nb - 1) : 0, tj = 0.46 + 0.48 * f;
+    const c = bez(P, mid, tip, tj), sg = j % 2 ? 1 : -1;
+    const side = vnorm(vadd(vmul(side0, sg), [(rng() - 0.5) * 0.4, (rng() - 0.5) * 0.2, (rng() - 0.5) * 0.4]));
+    const sc = lerp(1, 0.78, f), H = 0.58 * sc, s = 0.29 * sc, out = j % 2 === 1;
+    const b = vadd(vadd(c, vmul(side, 0.17 * sc)), [0, -0.03, 0]);
+    tube([c, vadd(vadd(c, vmul(side, 0.08 * sc)), [0, 0.05, 0]), b], 0.007, PAL.sage, PAL.deepSage, K.STEM, 0.9);
+    const a = out ? vnorm(vadd(vadd(vmul(side, 0.50), [0, -0.85, 0]), vmul(dir, 0.15)))
+                  : vnorm(vadd(vadd(vmul(side, 0.28), [0, -1.00, 0]), vmul(dir, 0.10)));
+    bellHead(makeFrame(b, a, rng() * TAU), H, s, BELLS[(j + (rng() * 3 | 0)) % 3]);
+  }
+  for (let i = 0; i < 2; i++) {                              // buds at the tip
+    const bs = bez(P, mid, tip, 0.88 + 0.12 * i), sg = i ? 1 : -1;
+    const d = vnorm(vadd(vadd(vmul(dir, 0.4), [0, -0.5, 0]), vmul(side0, sg * 0.5)));
+    tube([bs, vadd(bs, vmul(d, 0.05))], 0.006, PAL.sage, PAL.deepSage, K.STEM, 0.9);
+    budShape(makeFrame(vadd(bs, vmul(d, 0.05)), d, 0), 0.24, 0.075, BELLS[i], K.BELL);
+  }
+  for (let i = 0; i < 2; i++) {                              // narrow leaves low on the stalk
+    const c = bez(P, mid, tip, 0.2 + 0.1 * i), sg = i ? 1 : -1;
+    leafOn(leafFrame(c, vnorm(vadd(vmul(side0, sg), vmul(dir, 0.9)))), 0.20, 0.045, 0.25);
+  }
+}
+
+/* ---------------- wrapping paper, ribbon & bow ---------------- */
+const PA = { yA: -2.15, R0: 1.28 };
+const rimY = th => -0.62 + 0.40 * (0.5 - 0.5 * Math.sin(th)) + 0.022 * Math.sin(11 * th);
+function paperPos(th, v, off) {
+  const rim = rimY(th), y = PA.yA + (rim - PA.yA) * v;
+  const rip = 0.06 * Math.sin(7 * th + 0.6) + 0.035 * Math.sin(13 * th + 2.0);
+  const r = PA.R0 * Math.pow(v, 0.95) * (1 + rip * v) * (1 + 0.10 * smooth(0.85, 1, v)) + off * Math.min(1, v * 8);
+  return [r * Math.cos(th), y, r * Math.sin(th)];
+}
+function onCone(x, y, off) {
+  const vv = clamp((y - PA.yA) / (rimY(PI / 2) - PA.yA), 0.02, 1);
+  const z0 = paperPos(PI / 2, vv, off)[2];
+  return Math.sqrt(Math.max(1e-4, z0 * z0 - x * x));
+}
+function buildWrap() {
+  const VT = 0.965;
+  nid();
+  patch(IDF, (u, v) => {                                   // back / main sheet
+    const th = u * TAU, p = paperPos(th, v * VT, 0);
+    return [p[0], p[1], p[2], lerp(0.45, 1, v), clamp(0.25 + 0.6 * v + 0.15 * Math.sin(th * 7 + 0.6), 0, 1)];
+  }, { c1: PAL.paperHi, c2: PAL.paperLo, k: K.PAPER });
+  patch(IDF, (u, v) => {                                   // champagne rim
+    const th = u * TAU, p = paperPos(th, VT + v * (1 - VT), 0);
+    return [p[0], p[1], p[2], 1.1, 0.5 + 0.5 * Math.sin(th * 9)];
+  }, { c1: PAL.trimHi, c2: PAL.trimLo, k: K.RIBBON });
+  const rimF = uu => -0.12 - 0.30 * (1 - Math.pow(Math.abs(uu), 1.4));
+  const sheet = (uu, v, inset) => {                        // front overlay sheet
+    const th = PI / 2 + uu * 0.98;
+    const top = clamp(((rimY(th) + rimF(uu)) - PA.yA) / (rimY(th) - PA.yA), 0.05, 1);
+    return paperPos(th, v * top * (1 - inset), 0.045 + 0.06 * v);
+  };
+  nid();
+  patch(IDF, (u, v) => {
+    const uu = u * 2 - 1, p = sheet(uu, v, 0);
+    return [p[0], p[1], p[2], lerp(0.5, 1, v), clamp(0.2 + 0.7 * v + 0.12 * Math.sin(uu * 8), 0, 1)];
+  }, { c1: PAL.sheetHi, c2: PAL.sheetLo, k: K.PAPER });
+  patch(IDF, (u, v) => {                                   // champagne trim on the front sheet
+    const uu = u * 2 - 1;
+    const th = PI / 2 + uu * 0.98;
+    const top = clamp(((rimY(th) + rimF(uu)) - PA.yA) / (rimY(th) - PA.yA), 0.05, 1);
+    const p = paperPos(th, top * (0.975 + 0.025 * v), 0.045 + 0.06 * top);
+    return [p[0], p[1], p[2], 1.15, 0.5 + 0.5 * Math.sin(uu * 14)];
+  }, { c1: PAL.trimHi, c2: PAL.trimLo, k: K.RIBBON });
+  const yR = -1.13;                                        // ribbon band
+  nid();
+  patch(IDF, (u, v) => {
+    const th = u * TAU, yy = yR + (v - 0.5) * 0.15;
+    const vv = clamp((yy - PA.yA) / (rimY(th) - PA.yA), 0.05, 1);
+    const fw = smooth(1.2, 0.7, Math.abs(Math.atan2(Math.sin(th - PI / 2), Math.cos(th - PI / 2))));
+    const p = paperPos(th, vv, 0.02 + 0.11 * fw + 0.06 * vv * fw);
+    return [p[0], p[1], p[2], 1, 0.5 + 0.5 * Math.sin(v * PI)];
+  }, { c1: PAL.ribbonHi, c2: PAL.ribbonLo, k: K.RIBBON });
+  for (const sg of [-1, 1]) {                              // bow loops
+    const cxl = sg * 0.30, rot = sg * 0.5, cr = Math.cos(rot), sr = Math.sin(rot);
+    nid();
+    patch(IDF, (u, v) => {
+      const t = u * TAU, s = lerp(0.55, 1, v);
+      const ex = 0.27 * s * Math.cos(t), ey = 0.14 * s * Math.sin(t);
+      const x = cxl + ex * cr - ey * sr, y = yR + 0.03 + ex * sr + ey * cr;
+      const z = onCone(x, y, 0.15) + 0.045 + 0.06 * (1 - Math.pow(2 * (v) - 1, 2));
+      return [x, y, z, 0.6 + 0.4 * s, 0.5 + 0.5 * Math.sin(t)];
+    }, { c1: PAL.ribbonHi, c2: PAL.ribbonLo, k: K.RIBBON });
+    patch(IDF, (u, v) => {                                 // tail
+      const w = (u - 0.5) * 0.10;
+      const cx = sg * (0.05 + 0.32 * Math.pow(v, 1.1)), cy = yR - 0.03 - 0.78 * Math.pow(v, 0.95);
+      const dx = sg * 0.32 * 1.1 * Math.pow(Math.max(v, 0.02), 0.1), dy = -0.78 * 0.95 * Math.pow(Math.max(v, 0.02), -0.05);
+      const dl = Math.hypot(dx, dy), x = cx - dy / dl * w, y = cy + dx / dl * w;
+      return [x, y, onCone(x, y, 0.15) + 0.03 + 0.02 * Math.sin(u * PI), 0.7 + 0.3 * v, 0.5 + 0.5 * Math.sin(u * PI)];
+    }, { c1: PAL.ribbonHi, c2: PAL.ribbonLo, k: K.RIBBON });
+  }
+  nid();
+  blob([0, yR + 0.02, onCone(0, yR, 0.15) + 0.06], 0.075, PAL.ribbonHi, K.RIBBON, 0, 1);
+}
+
+/* a dark, mottled leaf canopy just under the flowers — gaps read as foliage, not void,
+   and every bloom gets a calm backdrop to stand out against */
+function foliageDome(Cc, Rd) {
+  nid();
+  const R = Rd * 0.84;
+  patch(IDF, (u, v) => {
+    const be = u * TAU, al = v * 1.95, sa = Math.sin(al);
+    const rr = R * (1 + 0.05 * Math.sin(be * 9 + al * 7) * Math.sin(al * 11 + 1.3));
+    const mott = 0.5 + 0.5 * Math.sin(be * 13 + al * 17) * Math.sin(al * 9 - be * 5);
+    return [Cc[0] + rr * sa * Math.cos(be), Cc[1] + rr * Math.cos(al) * 0.92, Cc[2] + rr * sa * Math.sin(be),
+            0.66 + 0.30 * mott, 0.10 + 0.6 * mott];
+  }, { c1: hex('#6f9279'), c2: hex('#27402f'), k: K.LEAF, jit: 0.12 });
+}
+
+/* ---------------- the arrangement ---------------- */
+function buildGeometry(spacing) {
+  SPACING = spacing; rng = mulberry32(20261121); curId = 0;
+  if (!G.P) allocGeometry(700000);
+  G.n = 0;
+  const Cc = [0, -0.45, 0], Rd = 1.5;
+  const bundle = () => [(rng() - 0.5) * 0.14, -1.38 + rng() * 0.1, (rng() - 0.5) * 0.14];
+  const stem = (base, a) => {
+    nid();
+    const B = bundle(), p1 = vadd(base, vmul(a, -0.75)), pts = [];
+    for (let i = 0; i <= 40; i++) { const p = bez(base, p1, B, i / 40); if (p[1] > -0.78) pts.push(p); }
+    if (pts.length > 1) tube(pts, 0.017, PAL.sage, PAL.deepSage, K.STEM, 0.9);
+  };
+  const place = (alpha, beta, type, size, pal, opt) => {
+    opt = opt || {};
+    const dir = [Math.sin(alpha) * Math.cos(beta), Math.cos(alpha), Math.sin(alpha) * Math.sin(beta)];
+    const tl = opt.tilt === undefined ? 0.18 : opt.tilt, rs = opt.rs || 1;
+    const a = vnorm([dir[0] + (rng() - 0.5) * tl, dir[1] + (rng() - 0.5) * tl, dir[2] + (rng() - 0.5) * tl]);
+    const P = [Cc[0] + dir[0] * Rd * rs, Cc[1] + dir[1] * Rd * 0.92 * rs, Cc[2] + dir[2] * Rd * rs];
+    const F = makeFrame(P, a, rng() * TAU);
+    let baseOff = 0;
+    if (type === 'rose') { roseHead(F, size, pal); baseOff = 0.5 * size; }
+    else if (type === 'tulip') { F.o = vsub(P, vmul(a, 0.18)); tulipHead(F, size, opt.H || size * 2.4, pal); }
+    else if (type === 'lily') { F.o = vsub(P, vmul(a, 0.12)); lilyHead(F, size, pal); }
+    else if (type === 'azalea') { F.o = vsub(P, vmul(a, 0.06)); azaleaTruss(F, size, pal); baseOff = 0.2 * size; }
+    else if (type === 'daisy') { daisyHead(F, size, pal); }
+    else if (type === 'carn') { carnationHead(F, size, pal); baseOff = 0.5 * size; }
+    else { smallHead(F, size, pal); }
+    stem(vsub(F.o, vmul(a, baseOff)), a);
+  };
+  const cyc = {};
+  const pick = (arr, key) => arr[(cyc[key] = (cyc[key] || 0) + 1) % arr.length];
+  const SIZE = { rose: 0.36, azalea: 0.74, carn: 0.35, tulip: 0.30, lily: 0.54, daisy: 0.38, small: 0.19 };
+  const ring = (alpha, base, list, sc) => list.forEach((ty, k) => {
+    const b = base + k * TAU / list.length, size = SIZE[ty] * sc * (0.94 + 0.12 * rng());
+    const pal = ty === 'rose' ? pick(ROSES, 'r') : ty === 'azalea' ? pick(AZS, 'a') : ty === 'carn' ? pick(CARNS, 'c') :
+      ty === 'tulip' ? pick(TULIPS, 't') : ty === 'lily' ? pick(LILIES, 'l') : ty === 'daisy' ? DAISYS[0] : pick(SMALLS, 's');
+    place(alpha, b, ty, size, pal, ty === 'tulip' ? { H: size * 2.7 } : {});
+  });
+
+  /* Fewer, larger blooms with real breathing room: each species appears several times,
+     spaced so no two of the same kind sit side by side. */
+  foliageDome(Cc, Rd);                                                             // deep-green backing behind every bloom
+  place(0.0, 0.0, 'rose', 0.42, ROSES[0], { tilt: 0.05 });                         // crown rose
+  ring(0.70, 0.17, ['azalea', 'rose', 'azalea', 'lily', 'azalea'], 1);
+  ring(1.16, 0.55, ['daisy', 'azalea', 'rose', 'lily', 'azalea', 'daisy', 'rose'], 1.0);
+  ring(1.52, 0.10, ['azalea', 'daisy', 'lily', 'azalea', 'rose', 'daisy'], 0.95);
+
+  for (let k = 0; k < 14; k++) {                                                   // baby's-breath sprays
+    const al = lerp(0.5, 1.6, rng()), be = rng() * TAU;
+    const d = [Math.sin(al) * Math.cos(be), Math.cos(al), Math.sin(al) * Math.sin(be)];
+    spray(vadd(Cc, vmul(d, Rd * 0.8)), vnorm(vadd(d, [0, 0.1, 0])), 0.55 + 0.35 * rng());
+  }
+
+  for (let k = 0; k < 6; k++) {                                                    // blue bellflower spires, fanned out over the shoulders
+    const al = k % 2 ? 1.22 : 0.92, be = k * TAU / 6 + 0.35;
+    const d = [Math.sin(al) * Math.cos(be), Math.cos(al), Math.sin(al) * Math.sin(be)];
+    bellSpray(vadd(Cc, vmul(d, Rd * 0.70)), vnorm(vadd(vmul(d, 0.90), [0, 0.80, 0])), [1.50, 1.80, 1.60, 1.75, 1.55, 1.70][k], 3);
+  }
+
+  for (let k = 0; k < 10; k++) {                                                   // short foliage tucked between the blooms
+    const al = 1.05, be = k * TAU / 10 + 0.3;
+    const d = [Math.sin(al) * Math.cos(be), Math.cos(al), Math.sin(al) * Math.sin(be)];
+    leafOn(leafFrame(vadd(Cc, vmul(d, Rd * 0.55)), vadd(d, [0, 0.5, 0])), 0.36 + 0.08 * rng(), 0.13, 0.25);
+  }
+  buildWrap();
+}
+
+/* ---------------- glyph ramps (dark -> light) ---------------- */
+const RAMPS = [
+  ' .:;coO0@#',          // 0 rose
+  ' .:;ioO8@#',          // 1 tulip
+  ' .:-=+*#%@',           // 2 star (lily / small)
+  ' .,:;+*#%',           // 3 leaf
+  ' .:|!Il1#',           // 4 stem
+  ' .:-=+*%#',           // 5 paper
+  ' .-~=+xX#@',          // 6 ribbon
+  ' .oO0@',              // 7 gold
+  ' .:*oO0@',            // 8 gypsophila
+  ' .:;coO0@',           // 9 bell
+  ' .:-=+*#%@',           // 10 azalea
+  ' .:-=+*#@',           // 11 daisy
+  ' .,~:;=ilI#%@'        // 12 carnation
+].map(s => s.split(''));
+const GLY = [], KB = [];
+RAMPS.forEach(r => { KB.push(GLY.length); r.forEach(c => GLY.push(c)); });
+const KIND_SPEC  = [22, 26, 24, 10, 30, 40, 70, 60, 10, 28, 24, 22, 20];
+const KIND_GLOSS = [0.55, 0.50, 0.60, 0.22, 0.30, 0.35, 0.95, 0.90, 0.15, 0.55, 0.50, 0.50, 0.40];
+/* exposure per kind: flowers glow a little, structure (stems, paper) stays calm */
+const KIND_EXPO = [1.30, 1.30, 1.28, 1.0, 0.9, 1.0, 1.12, 1.15, 1.1, 1.25, 1.30, 1.25, 1.28];
+const KEY_STRIDE = 262144;
+const EDGE0 = 0.085, EDGE1 = 0.42;                          // depth-gap range (world units) that reads as an edge
+
+function createOut(cells) {
+  return { zb: new Float32Array(cells), pid: new Int32Array(cells), glyph: new Uint16Array(cells), keys: new Float64Array(cells), nbs: new Int32Array(4), count: 0 };
+}
+
+/* Rasterise + shade the point cloud into a character grid. */
+function renderBouquet(p, out) {
+  const cols = p.cols, rows = p.rows, cw = p.cw, ch = p.ch, cx = p.cx, cy = p.cy, S = p.S, intro = p.intro;
+  const cells = cols * rows;
+  out.zb.fill(-1e9, 0, cells); out.pid.fill(-1, 0, cells);
+  const cyw = Math.cos(p.yaw), syw = Math.sin(p.yaw), cp = Math.cos(p.pitch), sp = Math.sin(p.pitch);
+  const m00 = cyw, m02 = syw, m10 = syw * sp, m11 = cp, m12 = -cyw * sp, m20 = -syw * cp, m21 = sp, m22 = cyw * cp;
+  const D = 14, PY = p.PY, P = G.P, n = G.n, zb = out.zb, pid = out.pid, icw = 1 / cw, ich = 1 / ch;
+  for (let i = 0; i < n; i++) {
+    const i3 = i * 3, x = P[i3], y = P[i3 + 1] - PY, z = P[i3 + 2];
+    const z2 = m20 * x + m21 * y + m22 * z, f = D / (D - z2) * S;
+    const sx = cx + (m00 * x + m02 * z) * f, sy = cy - (m10 * x + m11 * y + m12 * z) * f;
+    if (sx < 0 || sy < 0) continue;
+    const c = (sx * icw) | 0, r = (sy * ich) | 0;
+    if (c >= cols || r >= rows) continue;
+    const idx = r * cols + c;
+    if (z2 > zb[idx]) { zb[idx] = z2; pid[idx] = i; }
+  }
+  // fixed lights in view space (the bouquet turns, the light does not)
+  const kl = vnorm([-0.5, 0.58, 0.62]);
+  const hl = vnorm([kl[0], kl[1], kl[2] + 1]);
+  const rl = vnorm([0.8, 0.25, -0.5]);
+  const fl = vnorm([0.75, 0.05, 0.65]);                       // cool fill from the right so shadow sides keep their colour
+  const N = G.N, C = G.C, AO = G.AO, KK = G.K, ID = G.ID, nbs = out.nbs;
+  let cnt = 0;
+  for (let idx = 0; idx < cells; idx++) {
+    const i = pid[idx]; if (i < 0) continue;
+    const i3 = i * 3, nx = N[i3], ny = N[i3 + 1], nz = N[i3 + 2];
+    let ax = m00 * nx + m02 * nz, ay = m10 * nx + m11 * ny + m12 * nz, az = m20 * nx + m21 * ny + m22 * nz;
+    let ao = AO[i];
+    if (az < 0) { ax = -ax; ay = -ay; az = -az; ao *= 0.86; }
+
+    /* depth-edge pass: whatever sits behind a nearer neighbour is shadowed (strongly when it is a
+       different flower, gently inside one), and the nearer lip catches a little light. This is what
+       gives every petal, bloom and leaf a crisp, readable outline. */
+    const r0 = (idx / cols) | 0, c0 = idx - r0 * cols;
+    nbs[0] = c0 > 0 ? idx - 1 : -1; nbs[1] = c0 < cols - 1 ? idx + 1 : -1;
+    nbs[2] = r0 > 0 ? idx - cols : -1; nbs[3] = r0 < rows - 1 ? idx + cols : -1;
+    let occ = 0, near = 0;
+    const z0 = zb[idx], id0 = ID[i];
+    for (let q = 0; q < 4; q++) {
+      const j = nbs[q]; if (j < 0 || pid[j] < 0) continue;
+      const dz = zb[j] - z0;
+      if (dz > EDGE0) { const o = smooth(EDGE0, EDGE1, dz) * (ID[pid[j]] !== id0 ? 1 : 0.5); if (o > occ) occ = o; }
+      else if (dz < -EDGE0) { const o = smooth(EDGE0, EDGE1, -dz); if (o > near) near = o; }
+    }
+    ao *= 1 - 0.66 * occ;
+
+    const k = KK[i];
+    const dk = ax * kl[0] + ay * kl[1] + az * kl[2];
+    const diff = Math.pow(clamp((dk + 0.30) / 1.30, 0, 1), 1.15);          // soft wrap light: petals glow instead of going black
+    const fill = Math.max(0, ax * fl[0] + ay * fl[1] + az * fl[2]);
+    const sd = Math.max(0, ax * hl[0] + ay * hl[1] + az * hl[2]);
+    const spec = Math.pow(sd, KIND_SPEC[k]) * KIND_GLOSS[k];
+    const rimd = Math.max(0, ax * rl[0] + ay * rl[1] + az * rl[2]);
+    const rim = rimd * (0.25 + 0.75 * Math.pow(1 - az, 2)) * 0.55 * ao;
+    const lum = ao * (0.24 + 0.80 * diff + 0.16 * fill) + rim * 0.8 + near * 0.10;
+    let sh = clamp(lum * 1.05 + spec * 0.5, 0, 1) * intro;
+    const ramp = RAMPS[k];
+    let gi = (sh * (ramp.length - 1) + 0.5) | 0; const gmin = (k === 3 || k === 4 || k === 5) ? 1 : 2; if (gi < gmin) gi = gmin;
+    out.glyph[idx] = KB[k] + gi;
+    const fog = (0.82 + 0.18 * clamp((zb[idx] + 2.4) / 4.8, 0, 1)) * intro;
+    const key = (0.27 + 0.98 * diff * ao + 0.20 * fill * ao + near * 0.07) * KIND_EXPO[k];
+    const r = (C[i3] * key * 1.0 + rim * 0.80 + spec * 0.80) * fog;
+    const g = (C[i3 + 1] * key * 0.95 + rim * 0.52 + spec * 0.70) * fog;
+    const b = (C[i3 + 2] * key * 0.90 + rim * 0.46 + spec * 0.55) * fog;
+    const lu = (r + g + b) / 3, sat = 1.22;                                // richer, truer petal colour
+    const r5 = (clamp(lu + (r - lu) * sat, 0, 1) * 31 + 0.5) | 0, g5 = (clamp(lu + (g - lu) * sat, 0, 1) * 31 + 0.5) | 0, b5 = (clamp(lu + (b - lu) * sat, 0, 1) * 31 + 0.5) | 0;
+    out.keys[cnt++] = ((r5 << 10) | (g5 << 5) | b5) * KEY_STRIDE + idx;
+  }
+  out.count = cnt;
+}
+// </ENGINE>
+
+/* =====================================================================
+   PAGE — layout, quiet backdrop, rotation, soft bloom
+   ===================================================================== */
+const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const ROT_PERIOD = REDUCE ? 180 : 90;                     // seconds per full 360° turn
+const YAW0 = 0.35, PITCH = 0.12;
+/* measured extents of the point cloud, in world units (see build) */
+const EXT = { PY: -0.33, H: 3.68, R: 2.25 };
+
+const cvs = document.getElementById('stage');
+const ctx = cvs.getContext('2d', { alpha: false });
+const msgEl = document.getElementById('msg'), artEl = document.getElementById('art'), scroller = document.getElementById('scroller');
+const emblemEl = document.getElementById('emblem'), sealEl = document.getElementById('seal'), sideEl = document.querySelector('.side');
+const bq = document.createElement('canvas'), bqx = bq.getContext('2d');
+const bgC = document.createElement('canvas'), bgx = bgC.getContext('2d');
+const bloomC = [0, 1].map(() => document.createElement('canvas'));
+const bloomX = bloomC.map(c => c.getContext('2d'));
+
+let W = 0, H = 0, DPR = 1, fs = 12, cw = 7, chh = 13, cols = 0, rows = 0, GX = 0, GY = 0, S = 100, cx0 = 0, cy0 = 0;
+let out = null, geoSpacing = 0, lastSig = '', msgR = { l: 0, r: 0, t: 0, b: 0 }, colL = 0, colR = 0, emb = { x: 0, y: 0, w: 1, h: 1 }, sealA = { x: 0, y: 0, w: 1, h: 1 }, embK = 0.4, sealK = 0.25, letterTop = 0, spin = 0, endAt = 0, shed = [], bursts = [], petalSide = 0, vineL = 12, vineR = 12, vineTop = 0, vineY = 0, vg = 0, blooms = [], flies = [], ptr = { x: 0, y: 0, t: -99, down: false }, lastBq = 0, lastScy = 0, lastSo = '', hEma = 12;
+let SAFE = { t: 0, r: 0, b: 0, l: 0 };
+const probe = document.createElement('div');
+probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+document.body.appendChild(probe);
+
+const bucketCache = [];
+const bucketColor = b => bucketCache[b] || (bucketCache[b] = 'rgb(' + (((b >> 10) & 31) * 255 / 31 | 0) + ',' + (((b >> 5) & 31) * 255 / 31 | 0) + ',' + ((b & 31) * 255 / 31 | 0) + ')');
+
+/* romantic backdrop: plum-to-rose night, a soft rose halo behind the bouquet,
+   a few faint stars and rose-gold corner flourishes with tiny hearts */
+let parts = [];
+function drawBackdrop() {
+  bgx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const R0 = Math.hypot(W, H) * 0.62;
+  const g = bgx.createRadialGradient(cx0, cy0, 0, cx0, cy0, R0);
+  g.addColorStop(0, '#26101f'); g.addColorStop(0.45, '#160a1a'); g.addColorStop(1, '#07030c');
+  bgx.fillStyle = g; bgx.fillRect(0, 0, W, H);
+  bgx.textAlign = 'center'; bgx.textBaseline = 'middle';
+  let seed = 4242; const r = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const n = clamp(Math.round(W * H / 26000), 16, 50), glyphs = ['.', '\u00B7', '\u00B7', '+', '\u2727'];
+  bgx.font = Math.max(9, fs) + 'px ' + FONT;
+  for (let i = 0; i < n; i++) {
+    const x = r() * W, y = r() * H, a = 0.08 + r() * 0.16, gl = glyphs[(r() * glyphs.length) | 0];
+    const dx = (x - cx0) / (S * 2.4), dy = (y - cy0) / (S * 2.2);
+    if (dx * dx + dy * dy < 1) continue;
+    if (x > msgR.l - 14 && x < msgR.r + 14 && y > msgR.t - 14 && y < msgR.b + 14) continue;
+    bgx.fillStyle = 'rgba(' + (r() < 0.5 ? '255,226,230' : '230,170,200') + ',' + a.toFixed(3) + ')';
+    bgx.fillText(gl, x, y);
+  }
+  const m = Math.max(14, Math.min(W, H) * 0.035), step = Math.max(cw, 6), font = Math.max(9, fs);
+  bgx.font = font + 'px ' + FONT; bgx.fillStyle = 'rgba(232,163,174,0.34)';
+  const flip = (x, y, sx, sy) => {
+    const arm = clamp(Math.round(Math.min(W, H) / 38), 6, 16);
+    bgx.fillText(sy > 0 ? (sx > 0 ? '\u256D' : '\u256E') : (sx > 0 ? '\u2570' : '\u256F'), x, y);
+    for (let i = 1; i <= arm; i++) bgx.fillText(i === arm - 1 ? '\u00B7' : (i === arm ? '\u2665' : '\u2500'), x + sx * i * step, y);
+    for (let i = 1; i <= Math.min(4, Math.round(arm * 0.5)); i++) bgx.fillText('\u2502', x, y + sy * i * font * 1.1);
+  };
+  const L = SAFE.l + m, R = W - SAFE.r - m, T = SAFE.t + m, B = H - SAFE.b - m;     // keep clear of notches / home bars
+  /* corner flourishes are drawn per frame (see frame()) so they scroll with the page */
+
+  /* drifting hearts, petals and sparkles (animated in frame()) — kept few and faint */
+  parts = []; let s2 = 777; const q = () => { s2 = (s2 * 1664525 + 1013904223) >>> 0; return s2 / 4294967296; };
+  const kinds = ['\u2665', '\u2665', '\u2740', '\u2726', '\u00B7', '\u2661'], cols2 = ['255,150,180', '255,200,210', '240,170,120', '255,226,230'];
+  const np = clamp(Math.round(W * H / 42000), 10, 26);
+  for (let i = 0; i < np; i++) parts.push({
+    x: q() * W, y: q() * (H + 60), vy: 6 + q() * 10, sw: 0.3 + q() * 0.5, ph: q() * TAU, amp: 6 + q() * 14,
+    a: 0.14 + q() * 0.26, s: Math.max(8, fs) * (0.9 + q() * 1.3), g: kinds[(q() * kinds.length) | 0], c: cols2[(q() * cols2.length) | 0]
+  });
+}
+
+function resize(force) {
+  const cr = cvs.getBoundingClientRect();
+  const w = Math.max(1, Math.round(cr.width)), h = Math.max(1, Math.round(cr.height));
+  const ar = artEl.getBoundingClientRect();
+  const sig = [w, h, Math.round(ar.left), Math.round(ar.top + scroller.scrollTop), Math.round(ar.width), Math.round(ar.height), Math.round(emblemEl.getBoundingClientRect().top + scroller.scrollTop), Math.round(sealEl.getBoundingClientRect().top + scroller.scrollTop), window.devicePixelRatio].join();
+  if (!force && sig === lastSig) return;
+  lastSig = sig;
+  W = w; H = h;
+  DPR = clamp(Math.sqrt(4e6 / (W * H)), 1, Math.min(1.6, window.devicePixelRatio || 1));
+  const sc = getComputedStyle(probe);
+  SAFE = { t: parseFloat(sc.paddingTop) || 0, r: parseFloat(sc.paddingRight) || 0, b: parseFloat(sc.paddingBottom) || 0, l: parseFloat(sc.paddingLeft) || 0 };
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  bq.width = cvs.width; bq.height = cvs.height; bqx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  bgC.width = cvs.width; bgC.height = cvs.height;
+  bloomC.forEach((c, i) => { c.width = Math.max(2, Math.ceil(cvs.width / Math.pow(2, i + 2))); c.height = Math.max(2, Math.ceil(cvs.height / Math.pow(2, i + 2))); });
+
+  /* the bouquet is fitted into (and centred in) the .art box that CSS lays out beside / above the message */
+  let aw = ar.width, ah = ar.height, ax = ar.left - cr.left, ay = ar.top - cr.top + scroller.scrollTop;
+  if (aw < 20 || ah < 20) { aw = W; ah = H; ax = 0; ay = 0; }
+  cx0 = ax + aw / 2; cy0 = ay + ah / 2;
+  S = Math.max(20, Math.min(ah / (EXT.H * 1.06), aw / (2 * EXT.R * 1.14)));
+  const mr = msgEl.getBoundingClientRect();
+  msgR = { l: mr.left - cr.left, r: mr.right - cr.left, t: mr.top - cr.top + scroller.scrollTop, b: mr.bottom - cr.top + scroller.scrollTop };
+
+  const shr = document.getElementById('sheet').getBoundingClientRect(); colL = shr.left - cr.left; colR = shr.right - cr.left;
+  letterTop = document.getElementById('letter').offsetTop;
+  const pg = el => { const r = el.getBoundingClientRect(); return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + scroller.scrollTop + r.height / 2, w: r.width, h: r.height }; };
+  emb = pg(emblemEl); sealA = pg(sealEl);
+  vineL = clamp(Math.min(colL * .5, 30), 10, W / 2); vineR = W - vineL; vineTop = emb.y + emb.h * .5;
+  const fit = a => Math.min(1, a.w / (2 * EXT.R * 1.14 * S), a.h / (EXT.H * 1.06 * S));
+  embK = fit(emb); sealK = fit(sealA);
+  fs = clamp(Math.round(S * EXT.H / 80 / 1.12 * 2) / 2, 4.5, 12); chh = Math.round(fs * 1.12);
+  ctx.font = fs + 'px ' + FONT;
+  cw = ctx.measureText('M').width || fs * 0.6;
+  cols = Math.floor(W / cw); rows = Math.floor(H / chh);
+  GX = (W - cols * cw) / 2; GY = (H - rows * chh) / 2;
+  const spacing = clamp(0.62 * cw / S, 0.026, 0.05);
+  if (!geoSpacing || Math.abs(spacing / geoSpacing - 1) > 0.12) { buildGeometry(spacing); geoSpacing = spacing; }
+  out = createOut(cols * rows);
+  drawBackdrop();
+  flies = []; lastBq = 0;
+}
+
+/* draw the finished bouquet picture (plus bloom) centred at px,py at scale k */
+function place(px, py, k, al, intro) {
+  ctx.save(); ctx.translate(px, py); ctx.scale(k, k); ctx.translate(-cx0, -cy0);
+  ctx.imageSmoothingQuality = 'high'; ctx.globalAlpha = al; ctx.drawImage(bq, 0, 0, W, H);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.20 * intro * al; ctx.drawImage(bloomC[1], 0, 0, W, H);
+  ctx.globalAlpha = 0.09 * intro * al; ctx.drawImage(bloomC[0], 0, 0, W, H);
+  ctx.restore();
+}
+const HALO = document.createElement('canvas'); HALO.width = HALO.height = 256;
+{ const g = HALO.getContext('2d'), r = g.createRadialGradient(128, 128, 128 * .16, 128, 128, 128);
+  r.addColorStop(0, 'rgba(255,140,170,0.20)'); r.addColorStop(.5, 'rgba(200,90,140,0.08)'); r.addColorStop(1, 'rgba(200,90,140,0)'); g.fillStyle = r; g.fillRect(0, 0, 256, 256); }
+/* the closing seal: a small glyph blossom that slowly breathes and turns, inside a ring of tiny flowers and sparkles (no words) */
+const SEAL_RING = ['\u273F', '\u00B7', '\u2726', '\u00B7', '\u2740', '\u00B7'];
+const SEAL_RAMP = ['\u00B7', ':', '+', '*', 'o', 'O', '@'];
+function drawSeal(x, y, w, al, t) {
+  const R = w / 2, br = 1 + .05 * Math.sin(t * 1.6);
+  ctx.save(); ctx.translate(x, y); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const g = ctx.createRadialGradient(0, 0, R * .1, 0, 0, R * 1.5); g.addColorStop(0, 'rgba(255,120,160,' + (.28 * al).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,120,160,0)');
+  ctx.fillStyle = g; ctx.fillRect(-R * 1.5, -R * 1.5, R * 3, R * 3);
+  const n = 24, fr = clamp(R * .2, 8, 15);
+  ctx.font = fr + 'px ' + FONT;
+  for (let i = 0; i < n; i++) {
+    const an = t * .1 + i / n * TAU, gl = SEAL_RING[i % SEAL_RING.length], big = gl !== '\u00B7';
+    ctx.globalAlpha = (big ? .85 : .55) * al; ctx.fillStyle = big ? 'rgb(240,170,184)' : 'rgb(232,200,176)';
+    ctx.fillText(gl, Math.cos(an) * R * .9, Math.sin(an) * R * .9);
+  }
+  const st = Math.max(2.6, R * .075), rr = R * .62; ctx.font = '600 ' + st * 1.35 + 'px ' + FONT; ctx.globalAlpha = al;
+  for (let py = -rr; py <= rr; py += st) for (let px = -rr; px <= rr; px += st * .8) {
+    const r = Math.hypot(px, py), th = Math.atan2(py, px) - t * .15;
+    const pet = .5 + .5 * Math.cos(5 * th), edge = R * .56 * br * (.58 + .42 * pet);
+    if (r > edge) continue;
+    if (r < R * .075) { ctx.fillStyle = 'rgb(248,201,74)'; ctx.fillText('@', px, py); continue; }
+    const d = r / edge, m = clamp(.25 + .55 * d + .25 * pet - .12 * Math.cos(th * 5 + 1), 0, 1);
+    ctx.fillStyle = 'rgb(' + ((200 + 55 * m) | 0) + ',' + ((70 + 130 * m * m) | 0) + ',' + ((110 + 100 * m) | 0) + ')';
+    ctx.fillText(SEAL_RAMP[clamp(((1 - d * .6) * 6.99) | 0, 0, 6)], px, py);
+  }
+  ctx.restore();
+}
+/* reading the letter: every line sends a petal from the bouquet down to rest beside it */
+const PG = ['\u2740', '\u273F', '\u2665', '\u00B7', '\u2726'], PC = ['255,150,180', '255,200,210', '240,170,120', '255,226,230'];
+window.addEventListener('letter:line', function (e) {
+  if (REDUCE || shed.length > 70) return;
+  const r = e.detail.el.getBoundingClientRect(), cr = cvs.getBoundingClientRect();
+  const y1 = r.top - cr.top + scroller.scrollTop + Math.min(r.height / 2, 36);
+  vineY = Math.max(vineY, y1);
+  for (let n = 0; n < 2; n++) {
+    const right = (petalSide++ & 1) === 0, xm = right ? vineR : vineL;
+    shed.push({ x0: emb.x + (Math.random() - .5) * emb.w * .5, y0: emb.y + emb.h * .2, x1: xm, y1: y1 + (Math.random() - .5) * 18,
+      k: -Math.random() * .35, dur: clamp(Math.abs(y1 - emb.y) / 190, 1.3, 4.2), amp: 14 + Math.random() * 26, ph: Math.random() * TAU, w: 1.5 + Math.random() * 2,
+      rot: Math.random() * TAU, spin: (Math.random() - .5) * 5, s: Math.max(11, fs * 1.7) * (.9 + Math.random() * .8), a: .55 + Math.random() * .3,
+      g: PG[(Math.random() * PG.length) | 0], c: PC[(Math.random() * PC.length) | 0] });
+  }
+});
+/* the end of the letter: a little bouquet blooms under the signature in a burst of hearts */
+window.addEventListener('letter:end', function () {
+  endAt = performance.now();
+  if (REDUCE) return;
+  for (let i = 0; i < 24; i++) bursts.push({ x: sealA.x + (Math.random() - .5) * sealA.w * .6, y: sealA.y + (Math.random() - .5) * sealA.h * .3,
+    vx: (Math.random() - .5) * 90, vy: -(30 + Math.random() * 90), life: 1.6 + Math.random() * 1.4, s: Math.max(11, fs * 1.8) * (.8 + Math.random() * .9),
+    g: ['\u2665', '\u2665', '\u2661', '\u2726', '\u2740'][(Math.random() * 5) | 0], c: PC[(Math.random() * PC.length) | 0] });
+});
+
+/* fireflies: they drift around the bouquet, follow a finger / cursor, flash when you tap,
+   and every so often gather into a glowing heart around the flowers */
+const GS = document.createElement('canvas'); GS.width = GS.height = 64;
+{ const g = GS.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, 'rgba(255,246,218,1)'); r.addColorStop(.18, 'rgba(255,216,150,.78)'); r.addColorStop(.5, 'rgba(255,150,170,.22)'); r.addColorStop(1, 'rgba(255,150,170,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64); }
+const HEART_FIRST = 6, HEART_EVERY = 40;                 // seconds: first gathering, then how often it repeats
+function initFlies(n) {
+  flies = []; const R = Math.random, g3 = () => R() + R() + R() - 1.5;
+  for (let i = 0; i < n; i++) { const near = R() < .6;
+    flies.push({ hx: near ? cx0 + g3() * S * 1.8 : R() * W, hy: near ? cy0 + g3() * S * 1.4 : R() * H * .92, ax: 24 + R() * 70, ay: 18 + R() * 50,
+      f1: .12 + R() * .3, f2: .2 + R() * .35, p1: R() * TAU, p2: R() * TAU, p3: R() * TAU, bf: .6 + R() * 1.6, s: 10 + R() * 14,
+      att: 0, fl: 0, rr: 16 + R() * 50, ro: R() * TAU, ow: (R() < .5 ? -1 : 1) * (.8 + R() * 1.2), fol: R() < .7, x: 0, y: 0 }); }
+}
+function drawFlies(real, intro, scy, lpv, dts) {
+  const base = intro * (1 - smooth(0, .5, lpv)); if (base < .01) return;
+  const want = clamp(Math.round(W * H / 22000), 26, 40); if (flies.length !== want) initFlies(want);
+  const n = flies.length, hs = S * 2 / 16, act = ptr.down || performance.now() - ptr.t < 2200;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < n; i++) {
+    const f = flies[i];
+    const wx = f.hx + Math.sin(real * f.f1 + f.p1) * f.ax + Math.sin(real * f.f2 * 1.7 + f.p2) * f.ax * .45;
+    const wy = f.hy + Math.cos(real * f.f2 + f.p3) * f.ay + Math.sin(real * f.f1 * 1.9 + f.p1) * f.ay * .4;
+    const c = real - HEART_FIRST - i * .03, cc = c < 0 ? -1 : c % HEART_EVERY, fo = cc < 0 ? 0 : smooth(0, 2.2, cc) * (1 - smooth(5.8, 8.2, cc));
+    const th = i / n * TAU + real * .12, hx = cx0 + 16 * Math.pow(Math.sin(th), 3) * hs;
+    const hy = cy0 - scy - (13 * Math.cos(th) - 5 * Math.cos(2 * th) - 2 * Math.cos(3 * th) - Math.cos(4 * th) + 2.5) * hs;
+    f.att += ((act && f.fol ? 1 : 0) - f.att) * Math.min(1, dts * (1.2 + f.bf));
+    const px = ptr.x + Math.cos(real * f.ow + f.ro) * f.rr, py = ptr.y + Math.sin(real * f.ow + f.ro) * f.rr * .8, a2 = f.att * .92;
+    const x = lerp(lerp(wx, hx, fo), px, a2), y = lerp(lerp(wy, hy, fo), py, a2); f.x = x; f.y = y;
+    let br = .35 + .65 * Math.pow(Math.max(0, Math.sin(real * f.bf * 2 + f.p1)), 2); br = lerp(br, 1, Math.max(fo * .65, f.fl)); f.fl *= 1 - dts * 1.8;
+    const nearMsg = x > msgR.l - 10 && x < msgR.r + 10 && y > msgR.t - scy - 10 && y < msgR.b - scy + 10, sz = f.s * (1 + .3 * fo + .7 * f.fl);
+    ctx.globalAlpha = base * br * (nearMsg ? .4 : 1); ctx.drawImage(GS, x - sz / 2, y - sz / 2, sz, sz);
+  }
+  ctx.restore();
+}
+scroller.addEventListener('pointermove', function (e) { ptr.x = e.clientX; ptr.y = e.clientY; ptr.t = performance.now(); }, { passive: true });
+scroller.addEventListener('pointerdown', function (e) {
+  ptr.x = e.clientX; ptr.y = e.clientY; ptr.t = performance.now(); ptr.down = true;
+  if (REDUCE || scroller.scrollTop > H * .3) return;
+  for (const f of flies) if (Math.hypot(f.x - e.clientX, f.y - e.clientY) < 190) f.fl = 1;           // nearby fireflies flash
+  for (let i = 0; i < 9; i++) bursts.push({ x: e.clientX, y: e.clientY + scroller.scrollTop, vx: (Math.random() - .5) * 110, vy: -(20 + Math.random() * 70), life: 1 + Math.random() * .9,
+    s: 11 + Math.random() * 9, g: ['\u2665', '\u2661', '\u2726', '\u00B7'][(Math.random() * 4) | 0], c: PC[(Math.random() * PC.length) | 0] });
+}, { passive: true });
+['pointerup', 'pointercancel'].forEach(function (n) { scroller.addEventListener(n, function () { ptr.down = false; }, { passive: true }); });
+scroller.addEventListener('pointerleave', function () { ptr.t = -99; ptr.down = false; }, { passive: true });
+
+let started = false, started2 = false;
+let t0 = 0, lastT = 0, interval = 33, ema = 8;
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!started2) return;
+  if (!t0) { t0 = now; lastT = now; }
+  const dtMs = now - lastT;
+  const moving = scroller.scrollTop !== lastScy;
+  if (dtMs < (moving ? 14 : interval - 2)) return;
+  lastScy = scroller.scrollTop;
+  lastT = now;
+  const c0 = performance.now();
+  const real = (now - t0) / 1000, intro = smooth(0, 3.2, real);
+  const yaw = YAW0 + real * TAU / ROT_PERIOD + spin;              // continuous, seamless 360° loop
+
+  const scy = scroller.scrollTop;
+  /* scrolling to the letter: the bouquet shrinks first, then glides down into the slot above "My love," and travels with the page from there */
+  const lpv = clamp(scy / Math.max(1, letterTop), 0, 1), de = lpv * lpv * (3 - 2 * lpv);
+  const dk = lerp(1, embK, smooth(0, .7, lpv)), bcx = lerp(cx0, emb.x, de), bcy = lerp(cy0, emb.y, de) - scy;
+  spin += (clamp(scy / Math.max(1, scroller.scrollHeight - H), 0, 1) * TAU * .9 - spin) * .07;      // she turns slowly as you read
+  { const so = (1 - smooth(0, .5, lpv)).toFixed(2) + (lpv > .55 ? 'h' : ''); if (so !== lastSo) { lastSo = so; sideEl.style.opacity = (1 - smooth(0, .5, lpv)).toFixed(3); sideEl.style.visibility = lpv > .55 ? 'hidden' : ''; } }
+  const sealY = sealA.y - scy, sa = endAt ? smooth(0, 2.4, (performance.now() - endAt) / 1000) : 0;
+  const sealOn = sa > .01 && sealY > -sealA.h && sealY < H + sealA.h;
+  const drawTop = lpv < 1 || (bcy > -emb.h && bcy < H + emb.h);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(bgC, 0, 0, W, H);
+  { const hr = S * 2.5 * dk; ctx.drawImage(HALO, bcx - hr, bcy - S * .05 * dk - hr, hr * 2, hr * 2); }       // rose halo follows the bouquet
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const mh = msgEl.offsetHeight, span = H + 60, tt = REDUCE ? 0 : real;
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    const y = ((p.y - tt * p.vy) % span + span) % span - 30, x = p.x + Math.sin(tt * p.sw + p.ph) * p.amp;
+    let a = p.a * intro * smooth(0, 60, y + 30) * smooth(0, 60, H - y + 30);
+    { const lp = clamp(scy / (H * 0.7), 0, 1);                   // reading the letter: petals glow at the sides, hush behind the text
+      a *= (x > colL - 12 && x < colR + 12) ? 1 - 0.85 * lp : 1 + 0.9 * lp; }
+    const dx = (x - bcx) / (S * 1.9 * dk), dy = (y - bcy) / (S * 1.9 * dk);
+    if (dx * dx + dy * dy < 1) a *= 0.45;                        // stay quiet around the bouquet
+    if (x > msgR.l - 12 && x < msgR.r + 12 && y > msgR.t - scy - 12 && y < msgR.b - scy + 12) a *= 0.2;       // and around the message
+    ctx.font = p.s + 'px ' + FONT; ctx.fillStyle = 'rgba(' + p.c + ',' + a.toFixed(3) + ')';
+    ctx.fillText(p.g, x, y);
+  }
+
+  { const m = Math.max(12, Math.min(W, H) * 0.03), step = Math.max(cw, 6), fo = Math.max(9, fs), arm = clamp(Math.round(Math.min(W, H) / 38), 5, 16);
+    const yT = SAFE.t + m - scy, yB = scroller.scrollHeight - SAFE.b - m - scy;               // top of the page / bottom of the letter
+    ctx.font = fo + 'px ' + FONT; ctx.fillStyle = 'rgba(232,163,174,' + (0.34 * intro).toFixed(3) + ')';
+    const corner = (x0, y0, sx, sy) => {
+      ctx.fillText(sy > 0 ? (sx > 0 ? '\u256D' : '\u256E') : (sx > 0 ? '\u2570' : '\u256F'), x0, y0);
+      for (let i = 1; i <= arm; i++) ctx.fillText(i === arm - 1 ? '\u00B7' : (i === arm ? '\u2665' : '\u2500'), x0 + sx * i * step, y0);
+      for (let i = 1; i <= Math.min(4, Math.round(arm * 0.5)); i++) ctx.fillText('\u2502', x0, y0 + sy * i * fo * 1.1);
+    };
+    if (yT > -70) { corner(SAFE.l + m, yT, 1, 1); corner(W - SAFE.r - m, yT, -1, 1); }
+    if (yB < H + 70) { corner(SAFE.l + m, yB, 1, -1); corner(W - SAFE.r - m, yB, -1, -1); } }
+
+  const gap = intro < 1 ? 40 : clamp(hEma * 2.6, 66, 140);                                      // slow turn: re-draw the glyphs ~8-15x a second, reuse the picture in between
+  const heavy = drawTop && now - lastBq >= gap;
+  if (heavy) {
+  lastBq = now; const h0 = performance.now();
+  renderBouquet({ cols, rows, cw, ch: chh, cx: cx0 - GX, cy: cy0 - GY, S, yaw, pitch: PITCH, PY: EXT.PY, intro }, out);
+  const keys = out.keys.subarray(0, out.count); keys.sort();
+  bqx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  bqx.clearRect(0, 0, W, H);
+  bqx.translate(GX, GY);
+  bqx.font = '600 ' + fs + 'px ' + FONT; bqx.textAlign = 'center'; bqx.textBaseline = 'middle';
+  /* pass 1: a dimmed tile of the same colour under every glyph, so petals read as solid forms */
+  let lastB = -1;
+  bqx.globalAlpha = 0.34;
+  for (let q = 0; q < keys.length; q++) {
+    const key = keys[q], b = Math.floor(key / KEY_STRIDE), idx = key - b * KEY_STRIDE;
+    if (b !== lastB) { bqx.fillStyle = bucketColor(b); lastB = b; }
+    const r = (idx / cols) | 0, c = idx - r * cols;
+    bqx.fillRect(c * cw - 0.2, r * chh - 0.2, cw + 0.4, chh + 0.4);
+  }
+  /* pass 2: the glyphs themselves */
+  bqx.globalAlpha = 1; lastB = -1;
+  for (let q = 0; q < keys.length; q++) {
+    const key = keys[q], b = Math.floor(key / KEY_STRIDE), idx = key - b * KEY_STRIDE;
+    if (b !== lastB) { bqx.fillStyle = bucketColor(b); lastB = b; }
+    const r = (idx / cols) | 0, c = idx - r * cols;
+    bqx.fillText(GLY[out.glyph[idx]], (c + 0.5) * cw, (r + 0.5) * chh);
+  }
+  /* very soft bloom, rebuilt from the fresh picture */
+  bloomX[0].clearRect(0, 0, bloomC[0].width, bloomC[0].height); bloomX[0].drawImage(bq, 0, 0, bloomC[0].width, bloomC[0].height);
+  bloomX[1].clearRect(0, 0, bloomC[1].width, bloomC[1].height); bloomX[1].drawImage(bloomC[0], 0, 0, bloomC[1].width, bloomC[1].height);
+  hEma = hEma * .8 + (performance.now() - h0) * .2;
+  }
+  if (drawTop) place(bcx, bcy, dk, 1, intro);
+  if (sealOn) drawSeal(sealA.x, sealY, Math.min(sealA.w, sealA.h), sa, real);
+
+  { const dts = Math.min(.1, dtMs / 1000);                              // drifting petals + the closing burst of hearts
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    vg += (vineY - vg) * Math.min(1, dts * 2.2);                       // a vine grows down both margins as far as you've read
+    if (vg > vineTop + 4) {
+      const st = Math.max(11, fs * 1.5); ctx.font = Math.max(9, fs) + 'px ' + FONT; ctx.fillStyle = 'rgb(232,163,174)';
+      const ya = Math.max(vineTop, scy - st), yb = Math.min(vg, scy + H + st);
+      for (let sd = 0; sd < 2; sd++) for (let y = vineTop + Math.ceil((ya - vineTop) / st) * st; y < yb; y += st) {
+        const n = Math.round((y - vineTop) / st);
+        ctx.globalAlpha = .4 * smooth(vineTop, vineTop + 70, y) * (1 - .8 * smooth(vg - 60, vg, y));
+        ctx.fillText(n % 3 === 0 ? '\u00B7' : '\u250A', (sd ? vineR : vineL) + Math.sin(y * .018 + sd * 2) * 4, y - scy);
+      }
+    }
+    for (let i = blooms.length - 1; i >= 0; i--) {                      // each petal that lands blooms on the vine
+      const b = blooms[i]; b.t += dts; const py = b.y - scy; if (py < -20 || py > H + 20) continue;
+      const k = smooth(0, .9, b.t); ctx.globalAlpha = .85 * k; ctx.font = b.s * (.4 + .6 * k) * (1 + .1 * Math.sin(b.t * 2 + b.x)) + 'px ' + FONT;
+      ctx.fillStyle = 'rgb(' + b.c + ')'; ctx.fillText(b.g, b.x + Math.sin(b.y * .018) * 4, py);
+    }
+    for (let i = shed.length - 1; i >= 0; i--) {
+      const q = shed[i]; q.k += dts / q.dur; if (q.k >= 1.35) { shed.splice(i, 1); continue; }
+      if (q.k >= 1 && !q.done) { q.done = 1; if (blooms.length > 90) blooms.shift(); blooms.push({ x: q.x1, y: q.y1, g: q.g === '\u00B7' ? '\u2740' : q.g, s: q.s * .85, c: q.c, t: 0 }); }
+      const k = clamp(q.k, 0, 1), e = k * k * (3 - 2 * k), py = lerp(q.y0, q.y1, e) - scy;
+      if (py < -20 || py > H + 20) continue;
+      ctx.save(); ctx.translate(lerp(q.x0, q.x1, e) + Math.sin(k * PI * q.w + q.ph) * q.amp * (1 - e * .6), py); ctx.rotate(q.rot + k * q.spin);
+      ctx.globalAlpha = q.a * smooth(0, .12, k) * (1 - smooth(1, 1.35, q.k)); ctx.font = q.s + 'px ' + FONT; ctx.fillStyle = 'rgb(' + q.c + ')'; ctx.fillText(q.g, 0, 0); ctx.restore();
+    }
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i]; b.life -= dts; if (b.life <= 0) { bursts.splice(i, 1); continue; }
+      b.vx *= .985; b.vy *= .985; b.x += b.vx * dts; b.y += b.vy * dts;
+      const py = b.y - scy; if (py < -20 || py > H + 20) continue;
+      ctx.globalAlpha = Math.min(1, b.life / .8) * .9; ctx.font = b.s + 'px ' + FONT; ctx.fillStyle = 'rgb(' + b.c + ')'; ctx.fillText(b.g, b.x, py);
+    }
+    ctx.globalAlpha = 1; }
+
+  if (!REDUCE) drawFlies(real, intro, scy, lpv, Math.min(.1, dtMs / 1000));
+
+  ema = ema * 0.9 + (performance.now() - c0) * 0.1;
+  interval = ema > 40 ? 66 : (ema > 22 ? 50 : (ema < 13 ? 33 : interval));
+}
+
+let rt = 0;
+const schedule = () => { clearTimeout(rt); rt = setTimeout(() => resize(false), 100); };
+window.addEventListener('resize', schedule);
+window.addEventListener('orientationchange', () => { schedule(); setTimeout(schedule, 350); });
+if (window.visualViewport) window.visualViewport.addEventListener('resize', schedule);
+if (window.ResizeObserver) { const ro = new ResizeObserver(schedule); ro.observe(artEl); ro.observe(msgEl); ro.observe(cvs); ro.observe(document.getElementById('sheet')); }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { resize(true); });
+resize(true);
+requestAnimationFrame(frame);
+window.__reveal = function () {
+  if (started) return; started = true;
+  const gate = document.getElementById('gate');
+  gate.classList.add('burst');
+  setTimeout(function () {                                  // the bouquet blooms in through the floating hearts
+    t0 = 0; started2 = true;
+    document.body.classList.add('go');
+    gate.classList.add('out');
+  }, 1800);                                                // the bouquet waits a moment while the hearts burst
+  setTimeout(function () { gate.style.display = 'none'; }, 1800 + 1700);
+};
+})();
+</script>
+
+<script>
+(function () {
+'use strict';
+const gate = document.getElementById('gate'), cv = document.getElementById('gateCv'), x = cv.getContext('2d'), space = document.getElementById('heartSpace');
+const FONT = '"JetBrains Mono","Fira Code","SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono","Courier New",monospace';
+const TAU = Math.PI * 2, clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
+const RAMP = ' .:-=+*#%@';
+let OW = 0, SAFE = { t: 0, r: 0, b: 0, l: 0 };
+const probe = document.createElement('div');
+probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+document.body.appendChild(probe);
+const C0 = [120, 22, 62], C1 = [240, 100, 140], C2 = [255, 232, 232];
+let W = 0, H = 0, DPR = 1, fs = 8, cw = 5, chh = 9, Rpx = 100, hcx = 0, hcy = 0, amb = [], parts = [], bursting = false, burstAt = 0, alive = true, t0 = 0, last = 0, hold = 0, holding = false, phase = 0, pressT = 0, nudgeTO = 0, sparks = [], sparkAcc = 0, stars = [], flies = [], rip = [], pf = 0, bt = 0;
+
+function resize() {
+  const cr = cv.getBoundingClientRect(); W = Math.max(1, Math.round(cr.width)); H = Math.max(1, Math.round(cr.height));
+  DPR = clamp(Math.sqrt(8e6 / (W * H)), 1, Math.min(2, devicePixelRatio || 1));
+  const sc = getComputedStyle(probe);
+  SAFE = { t: parseFloat(sc.paddingTop) || 0, r: parseFloat(sc.paddingRight) || 0, b: parseFloat(sc.paddingBottom) || 0, l: parseFloat(sc.paddingLeft) || 0 };
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); x.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const r = space.getBoundingClientRect();
+  Rpx = Math.min(r.height / 2.35, W * 0.3); hcx = r.left - cr.left + r.width / 2; hcy = r.top - cr.top + r.height / 2; OW = Math.min(W * .46, r.width / 2);
+  fs = clamp(Math.round(Rpx / 16 * 2) / 2, 6, 13); chh = Math.round(fs * 1.12);
+  x.font = '600 ' + fs + 'px ' + FONT; cw = x.measureText('M').width || fs * 0.6;
+  let sd = 99, q = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+  const kinds = ['\u2665', '\u2665', '\u273F', '\u2726', '\u00B7', '\u2661'], cl = ['255,150,180', '255,200,210', '240,170,120', '255,226,230'];
+  stars = []; flies = [];
+  for (let i = 0; i < clamp(Math.round(W * H / 14000), 20, 60); i++) {
+    const sx = q() * W, sy = q() * H, dx = (sx - hcx) / (Rpx * 1.9), dy = (sy - hcy) / (Rpx * 1.7);
+    if (dx * dx + dy * dy < 1) { i--; if (stars.length > 400) break; continue; }
+    stars.push({ x: sx, y: sy, a: .18 + q() * .4, sp: .6 + q() * 1.8, ph: q() * TAU, g: ['\u00B7', '+', '\u2726', '.', '\u00B7'][(q() * 5) | 0] });
+  }
+  for (let i = 0; i < 8; i++) flies.push({ x: q() * W, y: H * (.15 + q() * .7), ax: 20 + q() * 40, ay: 14 + q() * 30, sx: .12 + q() * .16, sy: .1 + q() * .14, ph: q() * TAU, pp: q() * TAU });
+  amb = []; const n = clamp(Math.round(W * H / 30000), 12, 30);
+  for (let i = 0; i < n; i++) amb.push({ x: q() * W, y: q() * (H + 60), vy: 5 + q() * 10, sw: .3 + q() * .5, ph: q() * TAU, amp: 6 + q() * 14,
+    a: .14 + q() * .28, s: fs * (1 + q() * 1.4), g: kinds[(q() * kinds.length) | 0], c: cl[(q() * cl.length) | 0] });
+}
+const smoothS = (a, b, v) => { const u = clamp((v - a) / (b - a), 0, 1); return u * u * (3 - 2 * u); };
+const hash = (i, j, k) => { let h = (i * 374761393 + j * 668265263 + k * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const beat = ph => { const m = ph % 1; return 1 + bt * (0.07 + 0.06 * hold) * (Math.exp(-Math.pow((m - .08) / .05, 2)) + .7 * Math.exp(-Math.pow((m - .25) / .05, 2))); };
+
+/* the heart: every character cell inside the classic implicit heart curve gets lit like a glossy dome */
+function heart(t, ph, cb) {
+  const s = beat(ph), ni = Math.ceil(1.4 * Rpx / cw), nj = Math.ceil(1.4 * Rpx / chh), ft = Math.floor(t * 4);
+  for (let j = -nj; j <= nj; j++) for (let i = -ni; i <= ni; i++) {
+    const px = hcx + i * cw, py = hcy + j * chh;
+    const sx = (px - hcx) / Rpx / s, sy = -(py - hcy) / Rpx / s + 0.12, a = sx * sx + sy * sy - 1, f = a * a * a - sx * sx * sy * sy * sy;
+    if (f >= 0) continue;
+    const d = Math.pow(Math.min(1, -f / 0.85), 0.55), hl = Math.exp(-((sx + .42) * (sx + .42) + (sy - .62) * (sy - .62)) / .07);
+    const shim = .5 + .5 * Math.sin(sx * 5 - sy * 3 - t * 2.2);
+    let sh = clamp(.22 + .55 * d + .35 * hl + .12 * shim + .2 * hold, 0, 1), gl = RAMP[Math.min(9, (sh * 9.99) | 0)];
+    if (hash(i, j, ft) < .012) { gl = '\u2665'; sh = 1; }
+    const u = sh < .5 ? sh / .5 : (sh - .5) / .5, A = sh < .5 ? C0 : C1, B = sh < .5 ? C1 : C2;
+    cb(px, py, gl, 'rgb(' + (lerp(A[0], B[0], u) | 0) + ',' + (lerp(A[1], B[1], u) | 0) + ',' + (lerp(A[2], B[2], u) | 0) + ')');
+  }
+}
+
+window.__gateBurst = function () {
+  if (bursting) return; bursting = true; burstAt = last;
+  orbit(last, (px, py, sn, gl, big) => {
+    const dx = (px - hcx) / Rpx, dy = (py - hcy) / Rpx, k = 70 + Math.random() * 120;
+    parts.push({ x: px, y: py, vx: dx * k, vy: dy * k - 10, g: gl, c: big === 2 ? 'rgb(255,165,190)' : 'rgb(244,220,176)', life: 1.5 + Math.random() * 1.5, sz: fs * (big ? 1.6 : 1.2) });
+  });
+  const gls = ['\u2665', '\u273F', '\u2726', '\u00B7', '\u2665'];
+  heart(last, phase, (px, py, gl, col) => {
+    const dx = (px - hcx) / Rpx, dy = (py - hcy) / Rpx, k = 90 + Math.random() * 170;
+    parts.push({ x: px, y: py, vx: dx * k + (Math.random() - .5) * 50, vy: dy * k + (Math.random() - .5) * 50 - 20,
+      g: Math.random() < .35 ? gls[(Math.random() * gls.length) | 0] : gl, c: col, life: 1.3 + Math.random() * 1.7, sz: fs * (Math.random() < .12 ? 1.8 : 1) });
+  });
+};
+
+/* slow rays of light fanning out behind the heart */
+function rays(t, alpha, pulse) {
+  if (alpha <= .01) return;
+  const R = Rpx * 3.4, g = x.createRadialGradient(0, 0, Rpx * .7, 0, 0, R), a = (.06 + .045 * pulse + .09 * hold) * alpha;
+  g.addColorStop(0, 'rgba(255,150,180,' + a.toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,150,180,0)');
+  x.save(); x.translate(hcx, hcy); x.rotate(t * .045); x.globalCompositeOperation = 'lighter'; x.fillStyle = g;
+  for (let i = 0; i < 12; i++) {
+    x.rotate(TAU / 12); const w = i % 2 ? .035 : .06;
+    x.beginPath(); x.moveTo(0, 0); x.lineTo(R * Math.cos(-w), R * Math.sin(-w)); x.lineTo(R * Math.cos(w), R * Math.sin(w)); x.closePath(); x.fill();
+  }
+  x.restore();
+}
+/* two tilted rings of light circling the heart — drawn half behind it, half in front */
+const ORB = [{ rx: 1.78, ry: .27, tilt: -.24, n: 64, sp: .20, dir: 1 }, { rx: 1.42, ry: .20, tilt: .17, n: 42, sp: .28, dir: -1 }];
+function orbit(t, cb) {
+  for (const o of ORB) {
+    const rx = Math.min(o.rx * Rpx, (OW || W * .46) * (o.rx / 1.78)), ry = o.ry / o.rx * rx, ct = Math.cos(o.tilt), st = Math.sin(o.tilt);
+    for (let k = 0; k < o.n; k++) {
+      const ang = k / o.n * TAU + o.dir * t * o.sp * (1 + 2.5 * hold), sn = Math.sin(ang), ex = rx * Math.cos(ang), ey = ry * sn;
+      const big = k % 12 === 0 ? 2 : (k % 6 === 0 ? 1 : 0), gl = big === 2 ? '\u2665' : (big === 1 ? '\u2726' : '\u00B7');
+      cb(hcx + ex * ct - ey * st, hcy + .04 * Rpx + ex * st + ey * ct, sn, gl, big);
+    }
+  }
+}
+function drawOrbit(t, front, alpha) {
+  if (alpha <= .01) return;
+  orbit(t, (px, py, sn, gl, big) => {
+    if ((sn > 0) !== front) return;
+    const d = .5 + .5 * sn, a = alpha * (.38 + .62 * d) * (big ? 1 : .9);
+    x.font = (big ? '600 ' : '') + (fs * (big ? 1.7 : 1.5) * (.8 + .5 * d)).toFixed(1) + 'px ' + FONT;
+    x.fillStyle = big === 2 ? 'rgba(255,165,190,' + a.toFixed(3) + ')' : 'rgba(244,220,176,' + a.toFixed(3) + ')';
+    x.fillText(gl, px, py);
+  });
+}
+/* a ring of dots sent out from the heart on every beat */
+function ripples(t, alpha) {
+  x.font = Math.max(9, fs) + 'px ' + FONT;
+  for (const r0 of rip) {
+    const k = (t - r0) / 2.6; if (k < 0 || k > 1) continue;
+    const e = 1 - (1 - k) * (1 - k), r = Rpx * (1.2 + 1.7 * e), a = .5 * Math.pow(1 - k, 1.4) * alpha, n = Math.max(24, Math.round(TAU * r / (cw * 2.4)));
+    x.fillStyle = 'rgba(255,170,195,' + a.toFixed(3) + ')';
+    for (let i = 0; i < n; i++) { const an = i / n * TAU + r0; x.fillText('\u00B7', hcx + r * Math.cos(an), hcy + r * Math.sin(an) * .92); }
+  }
+}
+
+function loop(now) {
+  if (!alive) return;
+  requestAnimationFrame(loop);
+  if (!t0) t0 = now;
+  const t = (now - t0) / 1000, dt = Math.min(.05, t - last); last = t;
+  if (!bursting) {                                                                          // press-and-hold progress
+    hold = clamp(hold + (holding ? dt / HOLD_SECONDS : -dt / 1.8), 0, 1);
+    if (hold >= 1) {
+      holding = false; btn.classList.remove('holding'); chargeStop(); chime(); musFade();
+      window.__gateBurst(); try { navigator.vibrate && navigator.vibrate([25, 40, 25]); } catch (_) {}
+      window.__reveal && window.__reveal();
+    }
+  }
+  const per = 2.4 * Math.pow(.10, Math.pow(hold, .85));                                    // seconds per beat: slow, then faster and faster
+  phase += dt / per;
+  bt = clamp(bt + (holding && !bursting ? dt / .12 : -dt / .5), 0, 1);                       // the heart is still until she is held
+  if (!bursting && Math.floor(phase) > pf) { pf = Math.floor(phase); if (holding) { rip.push(t); if (rip.length > 6) rip.shift(); }
+    if (holding) { thump(.22 + .5 * hold, Math.min(.17, per * .36)); try { navigator.vibrate && navigator.vibrate(8 + 16 * hold); } catch (_) {} } }                                                         // the heart beats faster as she holds
+  btn.style.setProperty('--p', hold.toFixed(3)); ringP.style.strokeDashoffset = (339.3 * (1 - hold)).toFixed(1);
+  if (holding && !bursting) {                                                              // the button trembles, harder and harder as the heart fills
+    const amp = .3 + 5.2 * Math.pow(hold, 1.35);
+    btn.style.setProperty('--sx', ((Math.random() - .5) * 2 * amp).toFixed(2) + 'px'); btn.style.setProperty('--sy', ((Math.random() - .5) * 2 * amp).toFixed(2) + 'px');
+    btn.style.setProperty('--sr', ((Math.random() - .5) * 2 * (.4 + 3.2 * hold)).toFixed(2) + 'deg'); chargeUpdate(hold);
+  } else { btn.style.setProperty('--sx', '0px'); btn.style.setProperty('--sy', '0px'); btn.style.setProperty('--sr', '0deg'); }
+  x.setTransform(DPR, 0, 0, DPR, 0, 0); x.clearRect(0, 0, W, H);
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  const pulse = bursting ? Math.max(0, 1 - (t - burstAt) / .7) : (beat(phase) - 1) / .07;
+  const g = x.createRadialGradient(hcx, hcy, 0, hcx, hcy, Rpx * 2.4);                      // glow behind the heart
+  g.addColorStop(0, 'rgba(255,110,150,' + (.20 + .12 * pulse + .30 * hold + (bursting ? .35 * pulse : 0)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,110,150,0)');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const span = H + 60, fade = clamp(t / 1.5, 0, 1);
+  for (const p of amb) {                                                                      // drifting hearts & sparkles
+    const y = ((p.y - t * p.vy) % span + span) % span - 30, xx = p.x + Math.sin(t * p.sw + p.ph) * p.amp;
+    x.font = p.s + 'px ' + FONT; x.fillStyle = 'rgba(' + p.c + ',' + (p.a * fade * Math.min(1, (y + 30) / 60, (H - y + 30) / 60)).toFixed(3) + ')'; x.fillText(p.g, xx, y);
+  }
+  const bf = bursting ? Math.max(0, 1 - (t - burstAt) / .5) : 1;
+  x.font = Math.max(9, fs) + 'px ' + FONT;
+  for (const st of stars) {                                                                  // twinkling stars
+    x.fillStyle = 'rgba(255,226,232,' + (st.a * (.45 + .55 * Math.sin(t * st.sp + st.ph)) * fade * bf).toFixed(3) + ')'; x.fillText(st.g, st.x, st.y);
+  }
+  for (const f of flies) {                                                                   // warm fireflies
+    const fx = f.x + Math.sin(t * f.sx + f.ph) * f.ax, fy = f.y + Math.cos(t * f.sy + f.ph) * f.ay, a = (.16 + .2 * Math.sin(t * .9 + f.pp)) * fade * bf;
+    const fg = x.createRadialGradient(fx, fy, 0, fx, fy, 16); fg.addColorStop(0, 'rgba(255,220,160,' + Math.max(0, a * 1.6).toFixed(3) + ')'); fg.addColorStop(1, 'rgba(255,200,140,0)');
+    x.fillStyle = fg; x.fillRect(fx - 16, fy - 16, 32, 32);
+  }
+  const pl = bursting ? 0 : (beat(phase) - 1) / .07, ga = smoothS(.8, 3.6, t) * bf;
+  rays(t, ga, pl); ripples(t, ga); drawOrbit(t, false, ga);                                  // rays, beat ripples, back half of the rings
+  { const m = Math.max(14, Math.min(W, H) * .035), step = Math.max(cw, 6), fo = Math.max(9, fs), arm = clamp(Math.round(Math.min(W, H) / 38), 6, 16);
+    x.font = fo + 'px ' + FONT; x.fillStyle = 'rgba(232,163,174,' + (.34 * fade * bf).toFixed(3) + ')';
+    for (const [cx, cy, sx, sy] of [[SAFE.l + m, SAFE.t + m, 1, 1], [W - SAFE.r - m, SAFE.t + m, -1, 1], [SAFE.l + m, H - SAFE.b - m, 1, -1], [W - SAFE.r - m, H - SAFE.b - m, -1, -1]]) {   // rose-gold corner flourishes
+      x.fillText(sy > 0 ? (sx > 0 ? '\u256D' : '\u256E') : (sx > 0 ? '\u2570' : '\u256F'), cx, cy);
+      for (let i = 1; i <= arm; i++) x.fillText(i === arm - 1 ? '\u00B7' : (i === arm ? '\u2665' : '\u2500'), cx + sx * i * step, cy);
+      for (let i = 1; i <= Math.min(4, Math.round(arm * .5)); i++) x.fillText('\u2502', cx, cy + sy * i * fo * 1.1);
+    } }
+  if (!bursting) {
+    x.font = '600 ' + fs + 'px ' + FONT; x.globalAlpha = fade;
+    x.save(); x.translate((Math.random() - .5) * hold * 4.4, (Math.random() - .5) * hold * 4.4);   // a little tremble while she holds
+    heart(t, phase, (px, py, gl, col) => { x.fillStyle = col; x.fillText(gl, px, py); });
+    x.restore(); x.globalAlpha = 1;
+    if (hold > .02) {                                                                       // sparks stream from the button into the heart
+      const br = btn.getBoundingClientRect(), bx = br.left + br.width / 2, by = br.top + br.height / 2;
+      sparkAcc += dt * (10 + 50 * hold);
+      while (sparkAcc > 1 && sparks.length < 140) {
+        sparkAcc -= 1; const an = Math.random() * TAU, r0 = br.width * .5;
+        sparks.push({ sx: bx + Math.cos(an) * r0, sy: by + Math.sin(an) * r0, tx: hcx + (Math.random() - .5) * Rpx * .8, ty: hcy + (Math.random() - .5) * Rpx * .8,
+          bend: (Math.random() - .5) * 90, k: 0, dur: .7 + Math.random() * .6, g: ['\u00B7', '\u2726', '\u2665', '\u00B7'][(Math.random() * 4) | 0] });
+      }
+      sparkAcc = Math.min(sparkAcc, 2);
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const q = sparks[i]; q.k += dt / q.dur; if (q.k >= 1) { sparks.splice(i, 1); continue; }
+      const e = q.k * q.k * (3 - 2 * q.k), qx = lerp(q.sx, q.tx, e) + Math.sin(q.k * Math.PI) * q.bend, qy = lerp(q.sy, q.ty, e);
+      x.globalAlpha = Math.sin(q.k * Math.PI) * .9; x.font = '600 ' + fs * 1.3 + 'px ' + FONT; x.fillStyle = '#ffc2d0'; x.fillText(q.g, qx, qy);
+    }
+    x.globalAlpha = 1;
+  } else {
+    for (const p of parts) {
+      const k = Math.pow(.35, dt); p.vx *= k; p.vy = p.vy * k - 14 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+      if (p.life <= 0) continue;
+      x.globalAlpha = Math.min(1, p.life / .9); x.font = '600 ' + p.sz + 'px ' + FONT; x.fillStyle = p.c; x.fillText(p.g, p.x, p.y);
+    }
+    x.globalAlpha = 1;
+    if (t - burstAt > 4) alive = false;
+  }
+  drawOrbit(t, true, ga);                                                                    // front half of the rings, over the heart
+}
+/* sound, all synthesized live with Web Audio: a rising hum while she holds, heartbeat thumps that grow stronger, and a bright chime when the heart opens */
+let AC = null, master = null, echo = null, chg = null, soundOn = true;
+const snd = document.getElementById('snd');
+function audioInit() {
+  if (!soundOn || AC) return;
+  try {
+    const AX = window.AudioContext || window.webkitAudioContext; if (!AX) { soundOn = false; return; }
+    AC = new AX(); master = AC.createGain(); master.gain.value = .6; master.connect(AC.destination);
+    const dl = AC.createDelay(1), fb = AC.createGain(), lp = AC.createBiquadFilter(); dl.delayTime.value = .27; fb.gain.value = .36; lp.type = 'lowpass'; lp.frequency.value = 2600;
+    echo = AC.createGain(); echo.gain.value = .55; echo.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(master);   // soft shimmering echo
+  } catch (_) { AC = null; soundOn = false; }
+}
+function chargeStart() {
+  if (!AC || !soundOn || chg) return;
+  const o1 = AC.createOscillator(), o2 = AC.createOscillator(), lfo = AC.createOscillator(), lg = AC.createGain(), f = AC.createBiquadFilter(), g = AC.createGain();
+  o1.type = 'sine'; o2.type = 'triangle'; f.type = 'lowpass'; g.gain.value = 0; lfo.frequency.value = 5.5; lg.gain.value = 7;
+  lfo.connect(lg); lg.connect(o2.detune); o1.connect(f); o2.connect(f); f.connect(g); g.connect(master); g.connect(echo);
+  o1.start(); o2.start(); lfo.start(); chg = { o1, o2, lfo, f, g }; musLevel(.5);
+}
+function chargeUpdate(h) {
+  if (!chg) return; const t = AC.currentTime, fr = 130 * Math.pow(4, h);                 // glides up two octaves as the heart fills
+  chg.o1.frequency.setTargetAtTime(fr, t, .05); chg.o2.frequency.setTargetAtTime(fr * 1.5, t, .05);
+  chg.f.frequency.setTargetAtTime(500 + 3200 * h, t, .05); chg.g.gain.setTargetAtTime(.035 + .10 * h, t, .08);
+}
+function chargeStop() {
+  if (!chg) return; const c = chg, t = AC.currentTime; chg = null;
+  c.g.gain.cancelScheduledValues(t); c.g.gain.setTargetAtTime(0, t, .06); [c.o1, c.o2, c.lfo].forEach(function (o) { o.stop(t + .45); }); musLevel(1);
+}
+function thump(v, gap) {                                                                      // lub-dub
+  if (!AC || !soundOn) return; const t = AC.currentTime;
+  [[0, 1], [gap || .17, .6]].forEach(function (b) {
+    const o = AC.createOscillator(), g = AC.createGain(), d = b[0], k = b[1];
+    o.type = 'sine'; o.frequency.setValueAtTime(125, t + d); o.frequency.exponentialRampToValueAtTime(58, t + d + .14);
+    g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(v * k, t + d + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d + .2);
+    o.connect(g); g.connect(master); o.start(t + d); o.stop(t + d + .25);
+  });
+}
+function chime() {                                                                       // the heart opens: a rising bell arpeggio over a warm low note
+  if (!AC || !soundOn) return; const t = AC.currentTime;
+  [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568].forEach(function (fr, i) {
+    const d = i * .075;
+    [[1, .16], [2.005, .045]].forEach(function (m) {
+      const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = fr * m[0];
+      g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(m[1], t + d + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d + 2.4);
+      o.connect(g); g.connect(master); g.connect(echo); o.start(t + d); o.stop(t + d + 2.5);
+    });
+  });
+  const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = 130.81;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.3, t + .04); g.gain.exponentialRampToValueAtTime(.0001, t + 1.8); o.connect(g); g.connect(master); o.start(t); o.stop(t + 1.9);
+}
+/* background music, also synthesized: a slow, dreamy loop (Cmaj7 - Am7 - Fmaj7 - G) of soft pads, a warm bass note and music-box plucks, kept quiet.
+   It begins on her first touch (browsers don't allow sound before that), dips while she holds, and fades away as the heart opens. */
+let mus = null, musOn = false, musTimer = 0, musNext = 0, musStep = 0, musFading = false;
+const MUS_VOL = .6, EIGHTH = .56, mf = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };      // <- MUS_VOL: music loudness (0 - 1)
+const CHORDS = [{ r: 36, p: [48, 52, 55, 59], a: [64, 67, 71, 72, 76] }, { r: 33, p: [45, 52, 55, 60], a: [64, 67, 69, 72, 76] },
+                { r: 29, p: [41, 48, 52, 57], a: [60, 65, 69, 72, 76] }, { r: 31, p: [43, 50, 55, 59], a: [62, 67, 71, 74, 79] }];
+const ARP = [0, 2, 1, 3, 2, 4, 3, 1];
+function padChord(t, c, dest) {
+  const f = AC.createBiquadFilter(), len = EIGHTH * 8; f.type = 'lowpass'; f.frequency.value = 1000; f.Q.value = .3; f.connect(dest);
+  c.p.forEach(function (m, i) {
+    [['triangle', .017, 0], ['sine', .014, 5]].forEach(function (o) {
+      const os = AC.createOscillator(), g = AC.createGain(); os.type = o[0]; os.frequency.value = mf(m); os.detune.value = o[2] * (i % 2 ? 1 : -1);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(o[1], t + 1.5); g.gain.setValueAtTime(o[1], t + len - .2); g.gain.linearRampToValueAtTime(0, t + len + 1.8);
+      os.connect(g); g.connect(f); os.start(t); os.stop(t + len + 1.9);
+    });
+  });
+  const b = AC.createOscillator(), bg = AC.createGain(); b.type = 'sine'; b.frequency.value = mf(c.r);
+  bg.gain.setValueAtTime(0, t); bg.gain.linearRampToValueAtTime(.07, t + .08); bg.gain.exponentialRampToValueAtTime(.0001, t + 3.6); b.connect(bg); bg.connect(dest); b.start(t); b.stop(t + 3.7);
+}
+function pluck(t, m, v, dest) {
+  [[1, v], [2.003, v * .22]].forEach(function (h) {
+    const o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = mf(m) * h[0];
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(h[1], t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + 1.7); o.connect(g); g.connect(dest); o.start(t); o.stop(t + 1.8);
+  });
+}
+function musTick() {
+  if (!musOn || !AC || !mus) return;
+  while (musNext < AC.currentTime + .7) {
+    const c = CHORDS[((musStep / 8) | 0) % 4], pos = musStep % 8;
+    if (pos === 0) padChord(musNext, c, mus);
+    if (Math.random() > .12) pluck(musNext + (Math.random() - .5) * .02, c.a[ARP[pos]], .05 + Math.random() * .035, mus);
+    musNext += EIGHTH; musStep++;
+  }
+}
+function musStart() {
+  if (!AC || !soundOn || musOn || musFading) return;
+  musOn = true; mus = AC.createGain(); mus.gain.value = 0; mus.gain.setTargetAtTime(MUS_VOL, AC.currentTime, 1.6); mus.connect(master); mus.connect(echo);
+  musNext = AC.currentTime + .15; musStep = 0; musTick(); musTimer = setInterval(musTick, 200);
+}
+function musLevel(v) { bgLevel(v); if (mus && musOn && !musFading) mus.gain.setTargetAtTime(v * MUS_VOL, AC.currentTime, .5); }
+function musStop(tau) {
+  musOn = false; clearInterval(musTimer); if (!mus) return;
+  const m = mus; mus = null; m.gain.cancelScheduledValues(AC.currentTime); m.gain.setTargetAtTime(0, AC.currentTime, tau);
+  setTimeout(function () { try { m.disconnect(); } catch (_) {} }, tau * 5000 + 2500);
+}
+function musFade() { musFading = true; musStop(2.6); }
+/* background song: a hidden YouTube player (needs the page to be hosted over https). If it can't load, the synthesized music is used instead. */
+const YT_ID = '4BDB8GwNySs', YT_VOL = 22;               // <- YT_VOL: song loudness (0 - 100)
+let yt = null, ytReady = false, ytFailed = false, ytWant = false, ytLevel = 1;
+(function () {
+  const box = document.createElement('div'); box.id = 'ytbox'; box.setAttribute('aria-hidden', 'true');
+  box.style.cssText = 'position:fixed;left:-400px;top:0;width:200px;height:200px;opacity:0;pointer-events:none;overflow:hidden';
+  const host = document.createElement('div'); host.id = 'ytp'; box.appendChild(host); document.body.appendChild(box);
+  window.onYouTubeIframeAPIReady = function () {
+    try {
+      yt = new YT.Player('ytp', { width: '200', height: '200', videoId: YT_ID,
+        playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: YT_ID, playsinline: 1, rel: 0, modestbranding: 1, disablekb: 1, fs: 0 },
+        events: {
+          onReady: function () { ytReady = true; try { yt.setVolume(YT_VOL * ytLevel); } catch (_) {} if (ytWant && soundOn) { try { yt.playVideo(); } catch (_) {} } },
+          onStateChange: function (e) { if (e.data === 0) { try { yt.seekTo(0); yt.playVideo(); } catch (_) {} } },
+          onError: function () { ytFailed = true; if (ytWant && soundOn) musStart(); }
+        } });
+    } catch (_) { ytFailed = true; }
+  };
+  const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.async = true;
+  sc.onerror = function () { ytFailed = true; }; document.head.appendChild(sc);
+})();
+function bgStart() {
+  ytWant = true;
+  if (ytFailed) { musStart(); return; }
+  if (ytReady && soundOn) { try { yt.setVolume(YT_VOL * ytLevel); yt.playVideo(); } catch (_) {} }
+}
+function bgPause() { ytWant = false; if (ytReady) { try { yt.pauseVideo(); } catch (_) {} } }
+function bgLevel(v) { ytLevel = v; if (ytReady) { try { yt.setVolume(YT_VOL * v); } catch (_) {} } }
+function firstGesture() { audioInit(); if (AC && AC.state === 'suspended') AC.resume(); bgStart(); }
+gate.addEventListener('pointerdown', firstGesture, { passive: true });
+gate.addEventListener('keydown', firstGesture);
+document.addEventListener('visibilitychange', function () { if (!AC) return; if (document.hidden) AC.suspend(); else if (soundOn) AC.resume(); });
+snd.addEventListener('click', function () {
+  soundOn = !soundOn; snd.setAttribute('aria-pressed', String(soundOn));
+  if (soundOn) { audioInit(); if (AC && AC.state === 'suspended') AC.resume(); bgStart(); } else { chargeStop(); musStop(.15); bgPause(); }
+});
+const HOLD_SECONDS = 3.6;                                  // <- how long she has to hold (seconds)
+const btn = document.getElementById('openBtn'), hint = document.getElementById('hint'), ringP = btn.querySelector('.prog');
+function down() {
+  if (bursting || holding) return; holding = true; pressT = performance.now(); clearTimeout(nudgeTO);
+  audioInit(); if (AC && AC.state === 'suspended') AC.resume(); chargeStart();
+  phase = Math.floor(phase) + .97;                                                             // first beat lands right as she presses
+  btn.classList.add('holding'); hint.classList.remove('nudge'); hint.textContent = 'Keep holding\u2026';
+}
+function up() {
+  if (!holding) return; holding = false; chargeStop(); btn.classList.remove('holding'); if (bursting) return;
+  if (performance.now() - pressT < 350 && hold < .3) {                                       // a quick tap: gently ask for more
+    hint.textContent = 'A little longer, my love'; hint.classList.remove('nudge'); void hint.offsetWidth; hint.classList.add('nudge');
+    nudgeTO = setTimeout(function () { hint.textContent = 'Hold to open'; hint.classList.remove('nudge'); }, 2400);
+  } else hint.textContent = 'Hold to open';
+}
+btn.addEventListener('pointerdown', function (e) { e.preventDefault(); try { btn.setPointerCapture(e.pointerId); } catch (_) {} down(); });
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (n) { btn.addEventListener(n, up); });
+btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+btn.addEventListener('keydown', function (e) { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); down(); } });
+btn.addEventListener('keyup', function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); up(); } });
+btn.addEventListener('blur', up);
+let grt = 0; const gsched = () => { clearTimeout(grt); grt = setTimeout(resize, 60); };
+window.addEventListener('resize', gsched);
+window.addEventListener('orientationchange', () => { gsched(); setTimeout(gsched, 350); });
+if (window.visualViewport) window.visualViewport.addEventListener('resize', gsched);
+if (window.ResizeObserver) new ResizeObserver(gsched).observe(space);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+resize(); requestAnimationFrame(loop);
+})();
+</script>
+<script>
+(function () {
+'use strict';
+const scroller = document.getElementById('scroller'), cue = document.getElementById('cue'), letter = document.getElementById('letter'), sheet = document.getElementById('sheet');
+const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const kids = Array.prototype.filter.call(sheet.children, function (el) { return el.nodeType === 1; });
+const first = sheet.querySelector('p.b:not(.em)'); if (first) first.classList.add('dc');            // drop cap on the first paragraph
+
+/* The letter is paced like someone reading it aloud: one line at a time, top to bottom, and the next line
+   only begins after a pause that grows with the length of the line before it. A line also waits until it has scrolled into view. */
+const PAUSE_BASE = 550, PAUSE_PER_CHAR = 4, PAUSE_MAX = 1600;          // ms — raise these to slow the letter down further
+let next = 0, busy = false, queued = false;
+function step() {
+  queued = false;
+  if (busy || next >= kids.length) return;
+  const el = kids[next];
+  if (el.getBoundingClientRect().top > scroller.clientHeight * 0.94) return;                    // not scrolled to yet
+  el.classList.add('vis'); next++;
+  window.dispatchEvent(new CustomEvent('letter:line', { detail: { el: el } }));
+  if (next >= kids.length) setTimeout(function () { window.dispatchEvent(new Event('letter:end')); }, reduce ? 0 : 1400);
+  if (reduce) { step(); return; }
+  busy = true;
+  const len = (el.textContent || '').trim().length;
+  setTimeout(function () { busy = false; step(); }, Math.min(PAUSE_MAX, PAUSE_BASE + len * PAUSE_PER_CHAR));
+}
+const queue = function () { if (!queued) { queued = true; requestAnimationFrame(step); } };
+scroller.addEventListener('scroll', queue, { passive: true });
+window.addEventListener('resize', queue);
+queue();
+
+cue.addEventListener('click', function () {
+  scroller.scrollTo({ top: letter.offsetTop, behavior: reduce ? 'auto' : 'smooth' });
+  setTimeout(function () { sheet.focus({ preventScroll: true }); }, reduce ? 0 : 800);
+  queue();
+});
+})();
+</script>
+</body></html>
