@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0510">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23170a1b'/><g transform='translate(32 32)' fill='%23f08ab0'><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(0)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(72)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(144)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(216)'/><ellipse cx='0' cy='-14' rx='8' ry='12' transform='rotate(288)'/></g><circle cx='32' cy='32' r='6' fill='%23f8c94a'/></svg>">
-<title>Piece of you</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3CradialGradient%20id%3D%27g%27%20cx%3D%27.35%27%20cy%3D%27.28%27%20r%3D%27.9%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23ffc2d6%27%2F%3E%3Cstop%20offset%3D%27.55%27%20stop-color%3D%27%23ff8fb0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23e8508a%27%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2715%27%20fill%3D%27%232a1030%27%2F%3E%3Cpath%20d%3D%27M32%2053%20C14%2041%207%2031%207%2022.5%20C7%2014.5%2013%209.5%2020.5%209.5%20C25.5%209.5%2029.8%2012.3%2032%2017%20C34.2%2012.3%2038.5%209.5%2043.5%209.5%20C51%209.5%2057%2014.5%2057%2022.5%20C57%2031%2050%2041%2032%2053Z%27%20fill%3D%27url%28%23g%29%27%2F%3E%3Cellipse%20cx%3D%2719%27%20cy%3D%2718%27%20rx%3D%274.6%27%20ry%3D%272.6%27%20transform%3D%27rotate%28-35%2019%2018%29%27%20fill%3D%27%23fff%27%20opacity%3D%27.55%27%2F%3E%3Cellipse%20cx%3D%2720%27%20cy%3D%2733%27%20rx%3D%274.6%27%20ry%3D%272.8%27%20fill%3D%27%23ff5f93%27%20opacity%3D%27.55%27%2F%3E%3Cellipse%20cx%3D%2744%27%20cy%3D%2733%27%20rx%3D%274.6%27%20ry%3D%272.8%27%20fill%3D%27%23ff5f93%27%20opacity%3D%27.55%27%2F%3E%3Ccircle%20cx%3D%2724.5%27%20cy%3D%2727%27%20r%3D%273.4%27%20fill%3D%27%233a1030%27%2F%3E%3Ccircle%20cx%3D%2739.5%27%20cy%3D%2727%27%20r%3D%273.4%27%20fill%3D%27%233a1030%27%2F%3E%3Ccircle%20cx%3D%2725.6%27%20cy%3D%2725.8%27%20r%3D%271.2%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%2740.6%27%20cy%3D%2725.8%27%20r%3D%271.2%27%20fill%3D%27%23fff%27%2F%3E%3Cpath%20d%3D%27M28.6%2033%20Q32%2037.4%2035.4%2033%27%20fill%3D%27none%27%20stroke%3D%27%233a1030%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%2F%3E%3Cpath%20d%3D%27M52%205%20L53.9%2010.1%20L59%2012%20L53.9%2013.9%20L52%2019%20L50.1%2013.9%20L45%2012%20L50.1%2010.1Z%27%20fill%3D%27%23b8d6ff%27%2F%3E%3C%2Fsvg%3E">
+<title>Hortus Nocturne — A 3D ASCII Bouquet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
@@ -55,16 +55,16 @@
   #heartSpace { position: relative; width: 100%; height: min(38vh, 74vw); flex: 0 1 auto; min-height: 0; }
   #gate .ui { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity .6s ease, transform .6s ease; }
   #gate.burst .ui { opacity: 0; transform: translateY(8px); pointer-events: none; }
-  #gate .orn { margin: 0 0 1em; color: rgba(232,160,170,.8); letter-spacing: .7em; text-indent: .7em; font-size: clamp(11px, 2.4vw, 15px); opacity: 0; animation: fadein 2s ease .2s forwards; }
+  #gate .orn { margin: 0 0 1em; color: rgba(190,205,255,.85); letter-spacing: .7em; text-indent: .7em; font-size: clamp(11px, 2.4vw, 15px); opacity: 0; animation: fadein 2s ease .2s forwards; }
   #gate .hello { margin: 0; font-style: italic; font-size: clamp(24px, 5vw, 36px); line-height: 1.45; letter-spacing: .015em;
     text-shadow: 0 0 22px rgba(255,170,190,.3); opacity: 0; animation: fadein 2.4s ease .8s forwards; }
   #gate .hello span { display: block; text-wrap: balance; }
   #gate .hello small { display: block; margin-top: .55em; font-size: .52em; letter-spacing: .08em; color: #e8a3ae; }
   #gate .hello .h1 { font-size: 1.22em; letter-spacing: .02em; text-shadow: none;
-    background: linear-gradient(100deg, #ffd9e0 0%, #ffd9e0 30%, #fff7f0 42%, #ffb3c8 52%, #ffe2bd 60%, #ffd9e0 72%, #ffd9e0 100%); background-size: 260% 100%;
+    background: linear-gradient(100deg, #ffd9e0 0%, #ffd9e0 30%, #f2f4ff 42%, #ffb3c8 52%, #cfe0ff 60%, #ffd9e0 72%, #ffd9e0 100%); background-size: 260% 100%;
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
     filter: drop-shadow(0 0 14px rgba(255,150,180,.4)); animation: rise 1.8s cubic-bezier(.2,.7,.2,1) 1s both, shimmer 7s linear 2.8s infinite; }
-  #gate .hello .h2 { margin-top: .3em; font-size: .7em; color: #f0b8c4; letter-spacing: .06em; animation: rise 1.8s cubic-bezier(.2,.7,.2,1) 2.1s both; }
+  #gate .hello .h2 { margin-top: .3em; font-size: .7em; color: #f3c4dc; letter-spacing: .06em; animation: rise 1.8s cubic-bezier(.2,.7,.2,1) 2.1s both; }
   #gate .hello small { display: flex; align-items: center; justify-content: center; gap: 1em; margin-top: 1em; font-size: .4em; font-style: normal; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; color: #e8a3ae; animation: rise 1.8s ease 3s both; }
   #gate .hello small::before, #gate .hello small::after { content: ''; width: 2.6em; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,163,174,.75)); }
   #gate .hello small::after { transform: scaleX(-1); }
@@ -77,45 +77,49 @@
   #openBtn:focus-visible { outline: 2px solid rgba(255,190,205,.7); outline-offset: 8px; border-radius: 50%; }
   #openBtn .disc { position: absolute; inset: 9%; border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, #4d1d3b 0%, #2b1025 55%, #1a0916 100%);
-    box-shadow: inset 0 0 0 1px rgba(232,163,174,.4), inset 0 3px 12px rgba(255,170,200,.14),
-                0 0 calc(18px + 46px * var(--p)) rgba(255,110,150,calc(.25 + .45 * var(--p))); }
-  #openBtn .rose { position: absolute; inset: 14%; display: block; transform: scale(calc(1 + .08 * var(--p))); pointer-events: none; }
+    box-shadow: inset 0 0 0 1px rgba(190,205,255,.45), inset 0 3px 12px rgba(255,170,200,.14),
+                0 0 calc(18px + 46px * var(--p)) rgba(255,110,150,calc(.25 + .45 * var(--p))), 0 0 calc(10px + 36px * var(--p)) rgba(120,170,255,calc(.10 + .32 * var(--p))); }
+  #openBtn .rose { position: absolute; inset: 24%; display: block; transform: scale(calc(1 + .08 * var(--p))); pointer-events: none; }
   #openBtn .rose svg { width: 100%; height: 100%; overflow: visible; animation: breathe 4.6s ease-in-out infinite;
-    filter: drop-shadow(0 0 calc(3px + 8px * var(--p)) rgba(240,205,150,calc(.30 + .45 * var(--p)))); }
-  #openBtn .rose g.ln { fill: none; stroke: #ecd3a0; stroke-linecap: round; stroke-linejoin: round; }
-  #openBtn .rose .pet { transform-origin: 50px 50px; transform-box: view-box; }
-  #openBtn .rose .o .pet { stroke-width: .9; opacity: calc(.42 + .58 * var(--p));
-    fill: rgba(240,210,160,calc(.03 + .06 * var(--p))); transform: rotate(calc(var(--a) + 9deg * var(--p))) scale(calc(.86 + .14 * var(--p))); }
-  #openBtn .rose .m .pet { stroke-width: .9; opacity: calc(.7 + .3 * var(--p)); transform: rotate(calc(var(--a) - 6deg * var(--p))); }
-  #openBtn .rose .i path { stroke-width: .9; opacity: .95; }
+    filter: drop-shadow(0 0 calc(3px + 8px * var(--p)) rgba(150,195,255,calc(.30 + .45 * var(--p)))); }
+  #openBtn .rose g.ln { fill: none; stroke: #b8d6ff; stroke-linecap: round; stroke-linejoin: round; }
+  #openBtn .rose .bx rect { stroke-width: 1.8; fill: rgba(150,195,255,calc(.05 + .14 * var(--p))); }
+  #openBtn .rose .lid rect { stroke-width: 1.8; fill: rgba(150,195,255,calc(.08 + .14 * var(--p))); }
+  #openBtn .rose .rb { stroke: #ffb3c8; stroke-width: 1.8; }
+  #openBtn .rose .bow { stroke: #ffb3c8; stroke-width: 1.6; fill: rgba(255,179,200,calc(.06 + .22 * var(--p))); }
+  #openBtn .rose .lid { transform-origin: 30px 44px; transform-box: view-box; transform: translateY(calc(-9px * var(--p))) rotate(calc(-5deg * var(--p))); }
+  #openBtn .rose .spk { fill: #cfe3ff; stroke: none; opacity: var(--p); transform-origin: 50px 40px; transform-box: view-box; transform: scale(calc(.4 + .8 * var(--p))); }
   #openBtn .ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; pointer-events: none; }
   #openBtn .ring circle { fill: none; }
-  #openBtn .track { stroke: rgba(232,163,174,.4); stroke-width: 2; stroke-dasharray: .5 5.6; stroke-linecap: round; }
+  #openBtn .track { stroke: rgba(190,205,255,.45); stroke-width: 2; stroke-dasharray: .5 5.6; stroke-linecap: round; }
   #openBtn .prog { stroke: url(#rg); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 339.3; stroke-dashoffset: 339.3; filter: drop-shadow(0 0 4px rgba(255,150,180,.9)); }
   #openBtn .ripple { position: absolute; inset: 9%; border-radius: 50%; border: 1px solid rgba(255,150,180,.55); pointer-events: none; animation: ripple 2.4s ease-out infinite; }
-  #openBtn .ripple.r2 { animation-delay: 1.2s; }
+  #openBtn .ripple.r2 { animation-delay: 1.2s; border-color: rgba(150,195,255,.5); }
   #openBtn .orbit { position: absolute; inset: -9px; pointer-events: none; animation: spin 7s linear infinite; }
-  #openBtn .orbit::before, #openBtn .orbit::after { content: '\2726'; position: absolute; left: 50%; transform: translateX(-50%); font-size: 12px; color: #ffd6de; text-shadow: 0 0 8px rgba(255,170,190,.95); }
+  #openBtn .orbit::before, #openBtn .orbit::after { content: '\2726'; position: absolute; left: 50%; transform: translateX(-50%); font-size: 12px; color: #cfe3ff; text-shadow: 0 0 8px rgba(150,195,255,.95); }
   #openBtn .orbit::before { top: -3px; }
   #openBtn .orbit::after { bottom: -3px; content: '\00B7'; font-size: 18px; opacity: .6; }
   #openBtn.holding .orbit { animation-duration: 1.1s; }
   #openBtn.holding .rose svg { animation-duration: 1.6s; }
   #snd { position: relative; width: 30px; height: 30px; margin: -.4em 0 0; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; display: grid; place-items: center;
-    color: #e8a3ae; opacity: .32; -webkit-tap-highlight-color: transparent; transition: opacity .3s ease, color .3s ease; }
+    color: #bccfff; opacity: .32; -webkit-tap-highlight-color: transparent; transition: opacity .3s ease, color .3s ease; }
   #snd:hover, #snd:focus-visible { opacity: .8; outline: none; }
   #snd svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
   #snd .off { display: none; }
   #snd[aria-pressed="false"] { opacity: .22; }
   #snd[aria-pressed="false"] .on { display: none; }
   #snd[aria-pressed="false"] .off { display: block; }
-  #gate .hint { margin: 0; min-height: 1.5em; font-size: clamp(11px, 2.5vw, 14px); letter-spacing: .46em; text-indent: .46em; text-transform: uppercase; color: #e8a3ae; }
+  #gate .hint { margin: 0; min-height: 1.5em; font-size: clamp(11px, 2.5vw, 14px); letter-spacing: .46em; text-indent: .46em; text-transform: uppercase; color: #bccfff; }
   #gate .hint.nudge { animation: nudge .5s ease; }
   @keyframes breathe { 0%,100% { transform: scale(1) rotate(-2deg); } 50% { transform: scale(1.045) rotate(2deg); } }
   @keyframes ripple { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.6); opacity: 0; } }
   @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes orbcol { 0%, 100% { color: #cfe3ff; text-shadow: 0 0 8px rgba(150,195,255,.95); } 33% { color: #e4cbff; text-shadow: 0 0 8px rgba(200,160,255,.95); } 66% { color: #ffc9e0; text-shadow: 0 0 8px rgba(255,150,190,.95); } }
+  #openBtn .orbit::before, #openBtn .orbit::after { animation: orbcol 7s linear infinite; }
+  #openBtn .orbit::after { animation-delay: -3.5s; }
   @keyframes nudge { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
   @media (prefers-reduced-motion: reduce) { #openBtn svg, #openBtn .ripple, #openBtn .orbit { animation: none; } }
-  #cue { position: relative; flex: none; z-index: 5; margin: 0; padding: .5em 1.2em .2em; background: none; border: 0; cursor: pointer;
+  #cue { position: relative; top: clamp(8px, 1.8vh, 16px); flex: none; z-index: 5; margin: 0; padding: .5em 1.2em .2em; background: none; border: 0; cursor: pointer;
     display: flex; flex-direction: column; align-items: center; gap: .1em; opacity: 0; visibility: hidden; pointer-events: none; color: #f0b8c4; font: inherit; -webkit-tap-highlight-color: transparent;
     font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, Georgia, serif; }
   body.go #cue { pointer-events: auto; animation: fadeinLive 1s ease 5s forwards; }
@@ -141,7 +145,7 @@
   #letter .sheet > *.vis { opacity: 1; transform: none; filter: none; }
   #letter .orn { margin: 0 0 .9em; text-align: center; color: rgba(232,160,170,.9); letter-spacing: .7em; text-indent: .7em; font-size: .65em; }
   #letter .sheet > h2 { margin: 0 0 .6em; text-align: center; font-weight: 400; font-style: italic; font-size: 2.3em; line-height: 1.15; text-shadow: none;
-    background: linear-gradient(100deg, #ffd9e0 0%, #ffd9e0 30%, #fff7f0 42%, #ffb3c8 52%, #ffe2bd 60%, #ffd9e0 72%, #ffd9e0 100%); background-size: 260% 100%;
+    background: linear-gradient(100deg, #ffd9e0 0%, #ffd9e0 30%, #f2f4ff 42%, #ffb3c8 52%, #cfe0ff 60%, #ffd9e0 72%, #ffd9e0 100%); background-size: 260% 100%;
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
     animation: shimmer 7s linear infinite; filter: blur(6px) drop-shadow(0 0 0 rgba(255,150,180,0)); }
   #letter .sheet > h2.vis { filter: blur(0) drop-shadow(0 0 16px rgba(255,150,180,.4)); }
@@ -217,6 +221,16 @@
     #openBtn { width: clamp(60px, 24vh, 96px); }
   }
   @media (prefers-reduced-motion: reduce) { body.go .msg { animation-duration: .01s; animation-delay: 0s; } }
+
+  /* ---------- opener: a tiny game, two stars that find each other and become the heart ---------- */
+  body:not(.i-done) #gate *, body:not(.i-done) #gate *::before, body:not(.i-done) #gate *::after { animation-play-state: paused !important; }
+  #intro { position: absolute; inset: 0; z-index: 20; overflow: hidden; touch-action: none; color: #f8e4e4;
+    font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    background: radial-gradient(ellipse at 50% 42%, #2e1226 0%, #170a1b 52%, #07030c 100%); transition: opacity 1.6s ease, visibility 0s linear 1.6s; }
+  #intro.out { opacity: 0; visibility: hidden; pointer-events: none; }
+  #introCv { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #intro .icue { position: absolute; left: 0; right: 0; bottom: calc(var(--sab) + 8vh); margin: 0; text-align: center; font-size: clamp(10px, 2.2vw, 13px); letter-spacing: .46em; text-indent: .46em; text-transform: uppercase; font-style: italic; color: #c9d4ff; pointer-events: none; opacity: 0; animation: fadein 1.6s ease 1.8s forwards; }
+  #intro.leave .icue, #intro.met .icue { animation: none; opacity: 0; transition: opacity .6s ease; }
 </style>
 </head>
 <body>
@@ -229,7 +243,7 @@
   <div class="side">
 <div class="msg" id="msg">
   <p class="orn" aria-hidden="true">&middot; &#10084; &middot;</p>
-  <p class="line"><span>Of all the beautiful things this world could offer,</span><span>my heart will always choose you.</span></p>
+  <p class="line"><span>Every little thing makes you lovely,</span><span>but it's you who makes them whole.</span></p>
   <p class="sub">Happy Monthsary, my love</p>
 </div>
   <button id="cue" type="button" aria-haspopup="dialog"><span class="t">read my letter</span><span class="c" aria-hidden="true">&#8964;</span></button>
@@ -242,9 +256,9 @@
     <p class="orn">&middot; &#10022; &middot;</p>
     <p class="date">For us, through everything</p>
     <h2>My love,</h2>
-    <p class="b em">Two months of finding home in each other.</p>
-    <p class="b">Loving you feels like finding freedom in a world that sometimes asks too much of me. There&rsquo;s something about the thought of you that makes everything feel a little lighter, as if even from a distance, you give me somewhere to breathe. <span class="hl">And whenever I&rsquo;m with you, I feel free to simply exist, without having to figure everything out.</span> It&rsquo;s a kind of peace I never knew I needed, and somehow, I&rsquo;ve found it in you.<span class="mn r">I hope you feel this with me</span></p>
-    <p class="b">This month hasn&rsquo;t exactly been kind to us. We&rsquo;ve both had our own battles, our own worries, and days when things felt a little heavier than usual. And although we haven&rsquo;t been fighting each other, we&rsquo;ve been fighting through things of our own. But what stays with me is how, through it all, we never forget to let each other in. No matter how difficult something gets, we still find our way to tell each other, to listen, and to remind one another that we don&rsquo;t have to carry everything alone.<span class="mn l">even on our tired days</span></p>
+    <p class="b em">Two months of us, and every version is my favorite.</p>
+    <p class="b">Loving you feels like finding freedom in a world that sometimes asks too much of me. There&rsquo;s something about the thought of you that makes everything feel a little lighter, as if even from a distance, you give me somewhere to breathe. <span class="hl">And whenever I&rsquo;m with you, I feel free to simply exist, without having to figure everything out.</span> It&rsquo;s a kind of peace I never knew I needed, and somehow, I&rsquo;ve found it in you.<span class="mn r">where I can simply be</span></p>
+    <p class="b">This month hasn&rsquo;t exactly been kind to us. We&rsquo;ve both had our own battles, our own worries, and days when things felt a little heavier than usual. And although we haven&rsquo;t been fighting each other, we&rsquo;ve been fighting through things of our own. But what stays with me is how, through it all, we never forget to let each other in. No matter how difficult something gets, we still find our way to tell each other, to listen, and to remind one another that we don&rsquo;t have to carry everything alone.<span class="mn l">through it all, together</span></p>
     <p class="b">I think that&rsquo;s when I began to understand something about us: love isn&rsquo;t necessarily the absence of difficult days. Sometimes, it&rsquo;s having someone who makes those days a little less lonely. It&rsquo;s knowing that even when life gets overwhelming, I have you to turn to, and you have me, too. And I wouldn&rsquo;t trade that kind of love for anything.</p>
     <!-- ===== REASONS LIST: edit the lines, add or remove <li> (keep the --i numbers counting up) ===== -->
     <div class="reasons"><p class="rh">What I hold onto</p><ol>
@@ -260,9 +274,9 @@
     <figure class="polaroid"><div class="ph"><img src="our-photo.jpg" alt=""><figcaption>our favourite day</figcaption></div></figure>
     ======================================================================================= -->
     <p class="b">Two months may not seem like a long time to some, but I&rsquo;m grateful for every little thing we&rsquo;ve shared within it. For the good days, the difficult ones, and all the ordinary moments in between. If there&rsquo;s one thing I want you to know, it&rsquo;s that I&rsquo;m not only happy to be with you when life is gentle. I want to be here when it isn&rsquo;t, too.</p>
-    <p class="b em">And if I had to choose again, I&rsquo;d still find my way to you.</p>
+    <p class="b em">In every lifetime, I&rsquo;d still choose you.</p>
     <p class="sig">Yours, always.</p>
-    <p class="ps">P.S. Even on the days when the world feels a little too heavy, I hope you never forget that you have me.</p>
+    <p class="ps">Even in your quietest struggles, my heart will always make room for you.</p>
     <div class="rule" aria-hidden="true">&#10084;</div>
     <!-- ===== END OF LETTER ===== -->
   </div>
@@ -271,27 +285,25 @@
 </div>
 
 
+<div id="intro" aria-label="Bring the two little stars together">
+  <canvas id="introCv" aria-hidden="true"></canvas>
+  <p class="icue" aria-hidden="true">drag to bring them together</p>
+</div>
 <div id="gate">
   <canvas id="gateCv" aria-hidden="true"></canvas>
   <div id="heartSpace" aria-hidden="true"></div>
   <div class="ui">
     <p class="orn" aria-hidden="true">&middot; &#10022; &middot;</p>
-    <p class="hello"><span class="h1">A surprise, my love.</span><span class="h2">I made you a little garden.</span></p>
+    <p class="hello"><span class="h1">A little piece of me, just for you.</span><span class="h2">Because some things are better given than said.</span></p>
     <div class="openwrap">
       <button id="openBtn" type="button" aria-label="Press and hold to open">
         <span class="ripple"></span><span class="ripple r2"></span>
         <span class="disc"></span>
         <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
-          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd2bf"/><stop offset=".5" stop-color="#ff8fb0"/><stop offset="1" stop-color="#e8a3ae"/></linearGradient></defs>
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8d6ff"/><stop offset=".5" stop-color="#d6a8ff"/><stop offset="1" stop-color="#ff8fb0"/></linearGradient></defs>
           <circle class="track" cx="60" cy="60" r="54"/><circle class="prog" cx="60" cy="60" r="54"/>
         </svg>
-        <span class="rose" aria-hidden="true"><svg viewBox="0 0 100 100">
-          <g class="ln">
-            <g class="o"><path class="pet" pathLength="1" style="--a:0deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:72deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:144deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:216deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/><path class="pet" pathLength="1" style="--a:288deg" d="M50 53 C33 49 29 25 50 19 C71 25 67 49 50 53Z"/></g>
-            <g class="m"><path class="pet"  style="--a:36deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:108deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:180deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:252deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/><path class="pet"  style="--a:324deg" d="M50 50 C40 46 37 33 50 28 C63 33 60 46 50 50Z"/></g>
-            <g class="i"><path d="M50.8 50.6 L50.8 50.8 L50.7 51.1 L50.5 51.4 L50.2 51.6 L49.8 51.8 L49.4 51.9 L48.9 51.8 L48.5 51.7 L48.0 51.4 L47.6 51.0 L47.3 50.5 L47.1 49.9 L47.0 49.3 L47.1 48.6 L47.3 47.9 L47.7 47.3 L48.3 46.7 L49.0 46.3 L49.8 46.0 L50.7 45.9 L51.6 45.9 L52.5 46.2 L53.4 46.7 L54.1 47.4 L54.7 48.3 L55.1 49.3 L55.3 50.5 L55.2 51.6 L54.9 52.8 L54.3 53.8 L53.5 54.8 L52.5 55.6 L51.3 56.1 L49.9 56.4 L48.5 56.4 L47.1 56.1 L45.8 55.5 L44.6 54.6 L43.6 53.4 L42.9 52.0 L42.5 50.5 L42.4 48.9 L42.6 47.2 L43.3 45.6 L44.2 44.2 L45.5 43.0 L47.0 42.0 L48.8 41.4 L50.6 41.2 L52.5 41.4"/></g>
-          </g>
-        </svg></span>
+        <span class="rose" aria-hidden="true"><svg viewBox="0 7 100 100"><g class="ln"><g class="bx"><rect x="24" y="50" width="52" height="33" rx="3"/><path class="rb" d="M50 50 L50 83"/></g><g class="lid"><rect x="19" y="38" width="62" height="12" rx="3"/><path class="rb" d="M50 38 L50 50"/><path class="bow" d="M50 38 C41 22 26 25 32 34 C36 39 46 38 50 38Z"/><path class="bow" d="M50 38 C59 22 74 25 68 34 C64 39 54 38 50 38Z"/></g><path class="spk" d="M50 12 L52.4 19.6 L60 22 L52.4 24.4 L50 32 L47.6 24.4 L40 22 L47.6 19.6Z"/></g></svg></span>
         <span class="orbit" aria-hidden="true"></span>
       </button>
       <p class="hint" id="hint" aria-live="polite">Hold to open</p>
@@ -1067,7 +1079,7 @@ function drawBackdrop() {
 
   /* drifting hearts, petals and sparkles (animated in frame()) — kept few and faint */
   parts = []; let s2 = 777; const q = () => { s2 = (s2 * 1664525 + 1013904223) >>> 0; return s2 / 4294967296; };
-  const kinds = ['\u2665', '\u2665', '\u2740', '\u2726', '\u00B7', '\u2661'], cols2 = ['255,150,180', '255,200,210', '240,170,120', '255,226,230'];
+  const kinds = ['\u2665', '\u2665', '\u2740', '\u2726', '\u00B7', '\u2661'], cols2 = ['255,150,180', '255,200,210', '170,205,255', '255,226,230'];
   const np = clamp(Math.round(W * H / 42000), 10, 26);
   for (let i = 0; i < np; i++) parts.push({
     x: q() * W, y: q() * (H + 60), vy: 6 + q() * 10, sw: 0.3 + q() * 0.5, ph: q() * TAU, amp: 6 + q() * 14,
@@ -1159,7 +1171,7 @@ function drawSeal(x, y, w, al, t) {
   ctx.restore();
 }
 /* reading the letter: every line sends a petal from the bouquet down to rest beside it */
-const PG = ['\u2740', '\u273F', '\u2665', '\u00B7', '\u2726'], PC = ['255,150,180', '255,200,210', '240,170,120', '255,226,230'];
+const PG = ['\u2740', '\u273F', '\u2665', '\u00B7', '\u2726'], PC = ['255,150,180', '255,200,210', '170,205,255', '255,226,230'];
 window.addEventListener('letter:line', function (e) {
   if (REDUCE || shed.length > 70) return;
   const r = e.detail.el.getBoundingClientRect(), cr = cvs.getBoundingClientRect();
@@ -1186,7 +1198,7 @@ window.addEventListener('letter:end', function () {
    and every so often gather into a glowing heart around the flowers */
 const GS = document.createElement('canvas'); GS.width = GS.height = 64;
 { const g = GS.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  r.addColorStop(0, 'rgba(255,246,218,1)'); r.addColorStop(.18, 'rgba(255,216,150,.78)'); r.addColorStop(.5, 'rgba(255,150,170,.22)'); r.addColorStop(1, 'rgba(255,150,170,0)');
+  r.addColorStop(0, 'rgba(240,246,255,1)'); r.addColorStop(.18, 'rgba(176,210,255,.78)'); r.addColorStop(.5, 'rgba(255,150,170,.22)'); r.addColorStop(1, 'rgba(255,150,170,0)');
   g.fillStyle = r; g.fillRect(0, 0, 64, 64); }
 const HEART_FIRST = 6, HEART_EVERY = 40;                 // seconds: first gathering, then how often it repeats
 function initFlies(n) {
@@ -1369,11 +1381,11 @@ window.__reveal = function () {
   if (started) return; started = true;
   const gate = document.getElementById('gate');
   gate.classList.add('burst');
+  setTimeout(function () { try { window.__song && window.__song(); } catch (_) {} }, 700);   // the song slips in just after the heart pops, before the flowers bloom
   setTimeout(function () {                                  // the bouquet blooms in through the floating hearts
     t0 = 0; started2 = true;
     document.body.classList.add('go');
     gate.classList.add('out');
-    try { window.__song && window.__song(); } catch (_) {}      // the song begins together with the bloom
   }, 1800);                                                // the bouquet waits a moment while the hearts burst
   setTimeout(function () { gate.style.display = 'none'; }, 1800 + 1700);
 };
@@ -1391,7 +1403,7 @@ let OW = 0, SAFE = { t: 0, r: 0, b: 0, l: 0 };
 const probe = document.createElement('div');
 probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
 document.body.appendChild(probe);
-const C0 = [120, 22, 62], C1 = [240, 100, 140], C2 = [255, 232, 232];
+const C0 = [120, 22, 62], C1 = [240, 100, 140], C2 = [232, 234, 255];
 let W = 0, H = 0, DPR = 1, fs = 8, cw = 5, chh = 9, Rpx = 100, hcx = 0, hcy = 0, amb = [], parts = [], bursting = false, burstAt = 0, alive = true, t0 = 0, last = 0, hold = 0, holding = false, phase = 0, pressT = 0, nudgeTO = 0, sparks = [], sparkAcc = 0, stars = [], flies = [], rip = [], pf = 0, bt = 0;
 
 function resize() {
@@ -1405,7 +1417,7 @@ function resize() {
   fs = clamp(Math.round(Rpx / 16 * 2) / 2, 6, 13); chh = Math.round(fs * 1.12);
   x.font = '600 ' + fs + 'px ' + FONT; cw = x.measureText('M').width || fs * 0.6;
   let sd = 99, q = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
-  const kinds = ['\u2665', '\u2665', '\u273F', '\u2726', '\u00B7', '\u2661'], cl = ['255,150,180', '255,200,210', '240,170,120', '255,226,230'];
+  const kinds = ['\u2665', '\u2665', '\u273F', '\u2726', '\u00B7', '\u2661'], cl = ['255,150,180', '255,200,210', '170,205,255', '205,190,255', '160,238,232', '255,170,215', '236,240,255'];
   stars = []; flies = [];
   for (let i = 0; i < clamp(Math.round(W * H / 14000), 20, 60); i++) {
     const sx = q() * W, sy = q() * H, dx = (sx - hcx) / (Rpx * 1.9), dy = (sy - hcy) / (Rpx * 1.7);
@@ -1433,15 +1445,19 @@ function heart(t, ph, cb) {
     let sh = clamp(.22 + .55 * d + .35 * hl + .12 * shim + .2 * hold, 0, 1), gl = RAMP[Math.min(9, (sh * 9.99) | 0)];
     if (hash(i, j, ft) < .012) { gl = '\u2665'; sh = 1; }
     const u = sh < .5 ? sh / .5 : (sh - .5) / .5, A = sh < .5 ? C0 : C1, B = sh < .5 ? C1 : C2;
-    cb(px, py, gl, 'rgb(' + (lerp(A[0], B[0], u) | 0) + ',' + (lerp(A[1], B[1], u) | 0) + ',' + (lerp(A[2], B[2], u) | 0) + ')');
+    const w1 = .5 + .5 * Math.sin(sx * 2.6 + sy * 1.4 - t * .9), w2 = .5 + .5 * Math.sin(sx * 1.7 - sy * 2.3 + t * .6), am = (sh > .3 ? .36 : .12) * w1;   // roaming pastel patches
+    const rr = lerp(lerp(A[0], B[0], u), lerp(215, 140, w2), am), gg = lerp(lerp(A[1], B[1], u), lerp(160, 225, w2), am), bb = lerp(lerp(A[2], B[2], u), 255, am);
+    cb(px, py, gl, 'rgb(' + (rr | 0) + ',' + (gg | 0) + ',' + (bb | 0) + ')');
   }
 }
 
+window.__gateStart = function (sk) { sk = sk || 0; t0 = performance.now() - sk * 1000; last = sk - .02; };   // the gate's own opening starts after the opener (sk = head-start in seconds)
+window.__gateHeart = function () { return { x: hcx, y: hcy, R: Rpx, cw: cw, chh: chh, fs: fs, c0: C0, c1: C1, c2: C2 }; };   // lets the opener form the very same heart
 window.__gateBurst = function () {
   if (bursting) return; bursting = true; burstAt = last;
-  orbit(last, (px, py, sn, gl, big) => {
+  orbit(last, (px, py, sn, gl, big, kk) => {
     const dx = (px - hcx) / Rpx, dy = (py - hcy) / Rpx, k = 70 + Math.random() * 120;
-    parts.push({ x: px, y: py, vx: dx * k, vy: dy * k - 10, g: gl, c: big === 2 ? 'rgb(255,165,190)' : 'rgb(244,220,176)', life: 1.5 + Math.random() * 1.5, sz: fs * (big ? 1.6 : 1.2) });
+    parts.push({ x: px, y: py, vx: dx * k, vy: dy * k - 10, g: gl, c: 'rgb(' + (big === 2 ? HC[((kk / 6) | 0) % 3] : ORBC[((kk / 3) | 0) % 5]) + ')', life: 1.5 + Math.random() * 1.5, sz: fs * (big ? 1.6 : 1.2) });
   });
   const gls = ['\u2665', '\u273F', '\u2726', '\u00B7', '\u2665'];
   heart(last, phase, (px, py, gl, col) => {
@@ -1454,16 +1470,18 @@ window.__gateBurst = function () {
 /* slow rays of light fanning out behind the heart */
 function rays(t, alpha, pulse) {
   if (alpha <= .01) return;
-  const R = Rpx * 3.4, g = x.createRadialGradient(0, 0, Rpx * .7, 0, 0, R), a = (.06 + .045 * pulse + .09 * hold) * alpha;
-  g.addColorStop(0, 'rgba(255,150,180,' + a.toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,150,180,0)');
-  x.save(); x.translate(hcx, hcy); x.rotate(t * .045); x.globalCompositeOperation = 'lighter'; x.fillStyle = g;
+  const R = Rpx * 3.4, a = (.06 + .045 * pulse + .09 * hold) * alpha, gs = [];
+  for (const c of ['255,150,180', '150,190,255', '200,165,255']) { const g = x.createRadialGradient(0, 0, Rpx * .7, 0, 0, R); g.addColorStop(0, 'rgba(' + c + ',' + a.toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + c + ',0)'); gs.push(g); }
+  x.save(); x.translate(hcx, hcy); x.rotate(t * .045); x.globalCompositeOperation = 'lighter';
   for (let i = 0; i < 12; i++) {
-    x.rotate(TAU / 12); const w = i % 2 ? .035 : .06;
+    x.rotate(TAU / 12); const w = i % 2 ? .035 : .06; x.fillStyle = gs[i % 3];
     x.beginPath(); x.moveTo(0, 0); x.lineTo(R * Math.cos(-w), R * Math.sin(-w)); x.lineTo(R * Math.cos(w), R * Math.sin(w)); x.closePath(); x.fill();
   }
   x.restore();
 }
 /* two tilted rings of light circling the heart — drawn half behind it, half in front */
+const ORBC = ['170,205,255', '205,190,255', '160,238,232', '255,190,225', '255,165,190'], HC = ['255,165,190', '255,150,205', '215,170,255'], RIPC = ['255,170,195', '170,205,255', '205,190,255'];
+const STC = ['rgba(255,226,232,', 'rgba(190,220,255,', 'rgba(215,200,255,', 'rgba(170,240,238,'], FLC = ['170,210,255', '255,190,220', '210,195,255', '160,240,230'], CORN = ['255,179,200', '200,185,255', '160,238,232', '170,205,255'];
 const ORB = [{ rx: 1.78, ry: .27, tilt: -.24, n: 64, sp: .20, dir: 1 }, { rx: 1.42, ry: .20, tilt: .17, n: 42, sp: .28, dir: -1 }];
 function orbit(t, cb) {
   for (const o of ORB) {
@@ -1471,17 +1489,17 @@ function orbit(t, cb) {
     for (let k = 0; k < o.n; k++) {
       const ang = k / o.n * TAU + o.dir * t * o.sp * (1 + 2.5 * hold), sn = Math.sin(ang), ex = rx * Math.cos(ang), ey = ry * sn;
       const big = k % 12 === 0 ? 2 : (k % 6 === 0 ? 1 : 0), gl = big === 2 ? '\u2665' : (big === 1 ? '\u2726' : '\u00B7');
-      cb(hcx + ex * ct - ey * st, hcy + .04 * Rpx + ex * st + ey * ct, sn, gl, big);
+      cb(hcx + ex * ct - ey * st, hcy + .04 * Rpx + ex * st + ey * ct, sn, gl, big, k + (o.dir > 0 ? 0 : 100));
     }
   }
 }
 function drawOrbit(t, front, alpha) {
   if (alpha <= .01) return;
-  orbit(t, (px, py, sn, gl, big) => {
+  orbit(t, (px, py, sn, gl, big, kk) => {
     if ((sn > 0) !== front) return;
     const d = .5 + .5 * sn, a = alpha * (.38 + .62 * d) * (big ? 1 : .9);
     x.font = (big ? '600 ' : '') + (fs * (big ? 1.7 : 1.5) * (.8 + .5 * d)).toFixed(1) + 'px ' + FONT;
-    x.fillStyle = big === 2 ? 'rgba(255,165,190,' + a.toFixed(3) + ')' : 'rgba(244,220,176,' + a.toFixed(3) + ')';
+    x.fillStyle = 'rgba(' + (big === 2 ? HC[((kk / 6) | 0) % 3] : ORBC[((kk / 3) | 0) % 5]) + ',' + a.toFixed(3) + ')';
     x.fillText(gl, px, py);
   });
 }
@@ -1491,7 +1509,7 @@ function ripples(t, alpha) {
   for (const r0 of rip) {
     const k = (t - r0) / 2.6; if (k < 0 || k > 1) continue;
     const e = 1 - (1 - k) * (1 - k), r = Rpx * (1.2 + 1.7 * e), a = .5 * Math.pow(1 - k, 1.4) * alpha, n = Math.max(24, Math.round(TAU * r / (cw * 2.4)));
-    x.fillStyle = 'rgba(255,170,195,' + a.toFixed(3) + ')';
+    x.fillStyle = 'rgba(' + RIPC[((r0 * 7) | 0) % 3] + ',' + a.toFixed(3) + ')';
     for (let i = 0; i < n; i++) { const an = i / n * TAU + r0; x.fillText('\u00B7', hcx + r * Math.cos(an), hcy + r * Math.sin(an) * .92); }
   }
 }
@@ -1526,6 +1544,8 @@ function loop(now) {
   const g = x.createRadialGradient(hcx, hcy, 0, hcx, hcy, Rpx * 2.4);                      // glow behind the heart
   g.addColorStop(0, 'rgba(255,110,150,' + (.20 + .12 * pulse + .30 * hold + (bursting ? .35 * pulse : 0)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,110,150,0)');
   x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const g2 = x.createRadialGradient(hcx, hcy, Rpx * 1.1, hcx, hcy, Rpx * 3.4); g2.addColorStop(0, 'rgba(120,150,255,0)'); g2.addColorStop(.4, 'rgba(120,150,255,' + (.07 + .06 * pulse + .12 * hold).toFixed(3) + ')'); g2.addColorStop(1, 'rgba(120,150,255,0)');
+  x.fillStyle = g2; x.fillRect(0, 0, W, H);
   const span = H + 60, fade = clamp(t / 1.5, 0, 1);
   for (const p of amb) {                                                                      // drifting hearts & sparkles
     const y = ((p.y - t * p.vy) % span + span) % span - 30, xx = p.x + Math.sin(t * p.sw + p.ph) * p.amp;
@@ -1534,18 +1554,18 @@ function loop(now) {
   const bf = bursting ? Math.max(0, 1 - (t - burstAt) / .5) : 1;
   x.font = Math.max(9, fs) + 'px ' + FONT;
   for (const st of stars) {                                                                  // twinkling stars
-    x.fillStyle = 'rgba(255,226,232,' + (st.a * (.45 + .55 * Math.sin(t * st.sp + st.ph)) * fade * bf).toFixed(3) + ')'; x.fillText(st.g, st.x, st.y);
+    x.fillStyle = STC[((st.ph / TAU * 4) | 0) & 3] + (st.a * (.45 + .55 * Math.sin(t * st.sp + st.ph)) * fade * bf).toFixed(3) + ')'; x.fillText(st.g, st.x, st.y);
   }
   for (const f of flies) {                                                                   // warm fireflies
     const fx = f.x + Math.sin(t * f.sx + f.ph) * f.ax, fy = f.y + Math.cos(t * f.sy + f.ph) * f.ay, a = (.16 + .2 * Math.sin(t * .9 + f.pp)) * fade * bf;
-    const fg = x.createRadialGradient(fx, fy, 0, fx, fy, 16); fg.addColorStop(0, 'rgba(255,220,160,' + Math.max(0, a * 1.6).toFixed(3) + ')'); fg.addColorStop(1, 'rgba(255,200,140,0)');
+    const fc = FLC[((f.pp / TAU * 4) | 0) & 3], fg = x.createRadialGradient(fx, fy, 0, fx, fy, 16); fg.addColorStop(0, 'rgba(' + fc + ',' + Math.max(0, a * 1.6).toFixed(3) + ')'); fg.addColorStop(1, 'rgba(' + fc + ',0)');
     x.fillStyle = fg; x.fillRect(fx - 16, fy - 16, 32, 32);
   }
   const pl = bursting ? 0 : (beat(phase) - 1) / .07, ga = smoothS(.8, 3.6, t) * bf;
   rays(t, ga, pl); ripples(t, ga); drawOrbit(t, false, ga);                                  // rays, beat ripples, back half of the rings
   { const m = Math.max(14, Math.min(W, H) * .035), step = Math.max(cw, 6), fo = Math.max(9, fs), arm = clamp(Math.round(Math.min(W, H) / 38), 6, 16);
-    x.font = fo + 'px ' + FONT; x.fillStyle = 'rgba(232,163,174,' + (.34 * fade * bf).toFixed(3) + ')';
-    for (const [cx, cy, sx, sy] of [[SAFE.l + m, SAFE.t + m, 1, 1], [W - SAFE.r - m, SAFE.t + m, -1, 1], [SAFE.l + m, H - SAFE.b - m, 1, -1], [W - SAFE.r - m, H - SAFE.b - m, -1, -1]]) {   // rose-gold corner flourishes
+    x.font = fo + 'px ' + FONT; x.fillStyle = 'rgba(214,176,240,' + (.34 * fade * bf).toFixed(3) + ')';
+    for (const [cx, cy, sx, sy] of [[SAFE.l + m, SAFE.t + m, 1, 1], [W - SAFE.r - m, SAFE.t + m, -1, 1], [SAFE.l + m, H - SAFE.b - m, 1, -1], [W - SAFE.r - m, H - SAFE.b - m, -1, -1]]) { x.fillStyle = 'rgba(' + CORN[(sx > 0 ? 0 : 1) + (sy > 0 ? 0 : 2)] + ',' + (.34 * fade * bf).toFixed(3) + ')';   // corner flourishes, one pastel each
       x.fillText(sy > 0 ? (sx > 0 ? '\u256D' : '\u256E') : (sx > 0 ? '\u2570' : '\u256F'), cx, cy);
       for (let i = 1; i <= arm; i++) x.fillText(i === arm - 1 ? '\u00B7' : (i === arm ? '\u2665' : '\u2500'), cx + sx * i * step, cy);
       for (let i = 1; i <= Math.min(4, Math.round(arm * .5)); i++) x.fillText('\u2502', cx, cy + sy * i * fo * 1.1);
@@ -1605,13 +1625,7 @@ function bell(t, m, v, len, wet) {
   });
 }
 function chargeStart() { if (!AC || !soundOn || chg) return; chg = { last: 0, i: 0 }; }
-function chargeUpdate(h) {
-  if (!chg) return;
-  const t = AC.currentTime, iv = lerp(.55, .24, h);                          // slow and calm, only a little faster as the heart fills
-  if (t - chg.last < iv) return; chg.last = t;
-  const lo = Math.floor(h * 5), m = PENTA[Math.min(PENTA.length - 1, lo + ((chg.i * 2 + (chg.i % 3)) % 4))]; chg.i++;
-  bell(t, m, .04 + .025 * h, 1.1, true);
-}
+function chargeUpdate(h) { /* no tune while she holds: only the heartbeat is heard */ }
 function chargeStop() { if (!chg) return; chg = null; }
 function thump(v, gap) {                                                                      // a quiet, round "boop-boop"
   if (!AC || !soundOn) return; const t = AC.currentTime;
@@ -1627,6 +1641,21 @@ function chime() {                                                              
   [72, 76, 79, 84, 88, 91].forEach(function (m, i) { bell(t + i * .13, m, .07 - i * .006, 2.4, true); });
   bell(t, 48, .06, 2.8, false); bell(t + .26, 55, .04, 2.6, false);                      // warm low notes underneath
 }
+window.__thump = function (v, g) { thump(v, g); };
+window.__rumble = function (sec) {                                                           // a low, shuddering rumble that swells (the quake while the heart forms)
+  if (!AC || !soundOn) return; const t = AC.currentTime, o = AC.createOscillator(), o2 = AC.createOscillator(), g = AC.createGain(), lp = AC.createBiquadFilter(), lfo = AC.createOscillator(), lg = AC.createGain();
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(34, t); o.frequency.linearRampToValueAtTime(52, t + sec);
+  o2.type = 'triangle'; o2.frequency.setValueAtTime(68, t); o2.frequency.linearRampToValueAtTime(104, t + sec);
+  lp.type = 'lowpass'; lp.frequency.value = 180; lp.Q.value = .7; lfo.frequency.value = 11; lg.gain.value = .06;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t + sec * .75); g.gain.linearRampToValueAtTime(0, t + sec);
+  lfo.connect(lg); lg.connect(g.gain); o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(master);
+  [o, o2, lfo].forEach(function (n) { n.start(t); n.stop(t + sec + .1); });
+};                                               // a heartbeat thump, for the opener
+window.__ping = function (n) { if (!AC || !soundOn) return; bell(AC.currentTime, PENTA[(n * 3) % PENTA.length] + 12, .03, 1.5, true); };      // a tiny note for each firefly woken
+window.__pop = function () {                                                           // a soft rising chime as she enters from the opener
+  if (!AC || !soundOn) return; const t = AC.currentTime;
+  bell(t, 79, .06, 1.4, true); bell(t + .11, 84, .06, 1.6, true); bell(t + .24, 91, .045, 2, true);
+};
 /* background music, also synthesized: a slow, dreamy loop (Cmaj7 - Am7 - Fmaj7 - G) of soft pads, a warm bass note and music-box plucks, kept quiet.
    It only plays once the bouquet has bloomed in (page 2); the first page has just the heartbeat and the music-box chimes. */
 let mus = null, musOn = false, musTimer = 0, musNext = 0, musStep = 0, musFading = false;
@@ -1800,6 +1829,236 @@ cue.addEventListener('click', function () {
   setTimeout(function () { sheet.focus({ preventScroll: true }); }, reduce ? 0 : 800);
   queue();
 });
+})();
+</script>
+<script>
+(function () {
+'use strict';
+/* Opener: two little stars (the two of us). She drags the rose one toward the other (left alone, they find each other anyway).
+   THE MEETING, in four beats:
+     1. attraction  - as they near, glowing halos swell, a shimmering thread of light joins them, sparkles stream off them, the chimes begin to climb
+     2. the spiral  - they lock into an orbit and whirl faster and faster around each other while rings of light collapse inward and the sky is pulled toward them
+     3. the impact  - a white-pink flash, a lens flare, shockwave rings, rays, a burst of hearts and sparkles, the screen shudders and punches in
+     4. the heart   - the sparkles swirl back from every direction and settle into the same ASCII heart as the next page, which beats twice (with sound) before the hand-over */
+const intro = document.getElementById('intro'), cv = document.getElementById('introCv'), x = cv.getContext('2d');
+const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const FONT = '"JetBrains Mono","Fira Code","SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono","Courier New",monospace', TAU = Math.PI * 2, PI = Math.PI, RAMP = ' .:-=+*#%@';
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, eo = t => 1 - Math.pow(1 - t, 3), eio = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const sm = (a, b, v) => { const u = clamp((v - a) / (b - a), 0, 1); return u * u * (3 - 2 * u); };
+const ebk = p => 1 + 2.2 * Math.pow(p - 1, 3) + 1.2 * Math.pow(p - 1, 2);                          // ease-out with a little overshoot: the heart "pops" into place
+let W = 0, H = 0, DPR = 1, FS = 20, stars = [], t0 = 0, meetAt = 0, handed = false, done = false, down = false, cells = [], cfs = 8, Rh = 100;
+let sp = 0, spQ = 0, spR0 = 40, spA0 = 0, pa = [], emitAcc = 0, pingAt = 0, pingN = 0, b1 = false, b2 = false, rips = [], cpx = 0, cpy = 0;
+const A = { x: 0, y: 0, tr: [], c: '#ffb3c8', p: 0 }, B = { x: 0, y: 0, tr: [], c: '#8fc2ff', p: 2 }, ptr = { x: 0, y: 0 }, F = { x: 0, y: 0 }, T = { x: 0, y: 0 }, M = { x: 0, y: 0 };
+const k = reduce ? 2.5 : 1;                                                                        // reduced motion: everything is quicker...
+const fx = reduce ? .35 : 1;                                                                       // ...and calmer (softer flash, no shaking, fewer particles)
+const SPARK = ['·', '✦', '·', '+', '✧', '♥', '❀'], PINKS = ['rgb(255,179,200)', 'rgb(255,214,224)', 'rgb(176,208,255)', 'rgb(205,190,255)', 'rgb(255,150,180)'];
+const TC = [[255, 194, 212], [208, 192, 255], [176, 212, 255]];
+function thr(u) { const a = TC[u < .5 ? 0 : 1], b = TC[u < .5 ? 1 : 2], v = u < .5 ? u * 2 : (u - .5) * 2; return 'rgb(' + ((a[0] + (b[0] - a[0]) * v) | 0) + ',' + ((a[1] + (b[1] - a[1]) * v) | 0) + ',' + ((a[2] + (b[2] - a[2]) * v) | 0) + ')'; }   // pink -> lavender -> blue along the thread
+const vib = function (p) { if (reduce) return; try { navigator.vibrate && navigator.vibrate(p); } catch (_) {} };
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 1.5); const w0 = W; W = intro.clientWidth; H = intro.clientHeight; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  if (!w0) { A.x = W * .18; A.y = H * .68; B.x = W * .82; B.y = H * .4; ptr.x = A.x; ptr.y = A.y; }
+  stars = []; for (let i = 0; i < Math.round(W * H / 6000); i++) stars.push({ x: Math.random() * W, y: Math.random() * H, g: ['·', '.', '·', '✦'][i % 4], p: Math.random() * TAU, s: .4 + Math.random() * .9 });
+}
+/* the same heart as the next page: every character cell inside the classic implicit heart curve, lit like a glossy dome.
+   Each cell also gets a scatter point, a swirl direction and a "sparkle" glyph to wear while it flies in. */
+function buildHeart() {
+  const g = (window.__gateHeart && window.__gateHeart()) || { x: W / 2, y: H * .4, R: Math.min(W, H) * .22, cw: 5, chh: 9, fs: 8, c0: [120, 40, 70], c1: [236, 110, 150], c2: [255, 225, 205] };
+  T.x = g.x; T.y = g.y; cfs = g.fs; Rh = g.R; cells = [];
+  const ni = Math.ceil(1.4 * g.R / g.cw), nj = Math.ceil(1.4 * g.R / g.chh), fg = ['·', '✦', '+', '·', '♥'];
+  for (let j = -nj; j <= nj; j++) for (let i = -ni; i <= ni; i++) {
+    const px = i * g.cw, py = j * g.chh, sx = px / g.R, sy = -py / g.R + .12, a = sx * sx + sy * sy - 1, f = a * a * a - sx * sx * sy * sy * sy; if (f >= 0) continue;
+    const d = Math.pow(Math.min(1, -f / .85), .55), hl = Math.exp(-((sx + .42) * (sx + .42) + (sy - .62) * (sy - .62)) / .07), sh = clamp(.22 + .55 * d + .35 * hl, 0, 1);
+    const u = sh < .5 ? sh / .5 : (sh - .5) / .5, P = sh < .5 ? g.c0 : g.c1, Q = sh < .5 ? g.c1 : g.c2;
+    const cr = lerp(P[0], Q[0], u) | 0, cg = lerp(P[1], Q[1], u) | 0, cb = lerp(P[2], Q[2], u) | 0;
+    cells.push({ dx: px, dy: py, gl: Math.random() < .012 ? '♥' : RAMP[Math.min(9, (sh * 9.99) | 0)], fg: fg[(Math.random() * 5) | 0], col: 'rgb(' + cr + ',' + cg + ',' + cb + ')', cr: cr, cg: cg, cb: cb,
+      a: .4 + .6 * sh, d: Math.random(), sa: Math.random() * TAU, sr: 50 + Math.random() * (reduce ? 160 : 300), rot: (Math.random() < .5 ? -1 : 1) * (1.3 + Math.random() * 2.2), tr: Math.random() < .22 });
+  }
+}
+/* where a heart cell is at progress p: it spirals in from its scatter point, overshoots a touch, and settles */
+function cellPos(c, p, hs) {
+  if (p >= 1) { cpx = F.x + c.dx * hs; cpy = F.y + c.dy * hs; return; }
+  const e = ebk(p), vx = lerp(Math.cos(c.sa) * c.sr, c.dx * hs, e), vy = lerp(Math.sin(c.sa) * c.sr, c.dy * hs, e), an = c.rot * (1 - p) * (1 - p), ca = Math.cos(an), sa = Math.sin(an);
+  cpx = F.x + vx * ca - vy * sa; cpy = F.y + vx * sa + vy * ca;
+}
+function star(o, size, alpha, blur) { x.globalAlpha = alpha; x.fillStyle = o.c; x.shadowColor = o.c; x.shadowBlur = blur || 14; x.font = size + 'px ' + FONT; x.fillText('✦', o.x, o.y); x.shadowBlur = 0; }
+function glow(px, py, r, rgb, a) {                                                                   // soft additive light (caller sets 'lighter')
+  if (a <= .005 || r < 1) return; const g = x.createRadialGradient(px, py, 0, px, py, r);
+  g.addColorStop(0, 'rgba(' + rgb + ',' + a.toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)'); x.fillStyle = g; x.fillRect(px - r, py - r, r * 2, r * 2);
+}
+function spawn(px, py, vx, vy, life, g, c, sz, dr, gy) { if (pa.length > 120) return; pa.push({ x: px, y: py, vx: vx, vy: vy, l: life, ml: life, g: g, c: c, sz: sz, dr: dr, gy: gy || 0 }); }
+/* an expanding ring of light: a glowing circle with little glyphs riding on it */
+function shock(m, delay, dur, Rmax, lw, a0, rgb) {
+  const kk = (m - delay) / dur; if (kk <= 0 || kk >= 1) return;
+  const R = Rmax * (1 - Math.pow(1 - kk, 3)), a = a0 * Math.pow(1 - kk, 1.5);
+  x.globalAlpha = 1; x.lineWidth = Math.max(.6, lw * (1 - kk)); x.strokeStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')'; x.shadowColor = 'rgba(' + rgb + ',.9)'; x.shadowBlur = 10;
+  x.beginPath(); x.arc(F.x, F.y, R, 0, TAU); x.stroke(); x.shadowBlur = 0;
+  const n = clamp(Math.round(TAU * R / (FS * 2.2)), 12, 56), f = Math.round(FS * .75);
+  x.font = f + 'px ' + FONT; x.fillStyle = 'rgba(' + rgb + ',' + (a * .9).toFixed(3) + ')';
+  for (let i = 0; i < n; i++) { const an = i / n * TAU + delay * 3 + kk * .6; x.fillText(i % 7 === 0 ? '♥' : (i % 3 === 0 ? '✦' : '·'), F.x + Math.cos(an) * R, F.y + Math.sin(an) * R); }
+}
+/* the heart beats: a thump, a buzz, a ring of dots and a few hearts that float up */
+function heartBeat(m, big) {
+  try { window.__thump && window.__thump(big ? .6 : .42, .15); } catch (_) {} vib(big ? 18 : 10); rips.push(m);
+  const n = reduce ? 2 : (big ? 7 : 4);
+  for (let i = 0; i < n; i++) { const an = Math.random() * TAU, r = Rh * (.2 + Math.random() * .7);
+    spawn(F.x + Math.cos(an) * r, F.y + Math.sin(an) * r * .9, (Math.random() - .5) * 40, -(30 + Math.random() * 50), 1.4 + Math.random() * 1.2, Math.random() < .6 ? '♥' : '✦', PINKS[(Math.random() * PINKS.length) | 0], FS * (.5 + Math.random() * .6), .7, 18); }
+}
+function startSpiral(now, d) {                                                                       // they lock into an orbit around their midpoint
+  sp = now; M.x = (A.x + B.x) / 2; M.y = (A.y + B.y) / 2; spR0 = Math.max(6, d / 2); spA0 = Math.atan2(A.y - M.y, A.x - M.x);
+  intro.classList.add('met'); pingAt = now; pingN = 0; vib(14);
+}
+function impact(now) {
+  meetAt = now; F.x = M.x; F.y = M.y; intro.classList.add('met'); buildHeart();
+  try { window.__pop && window.__pop(); window.__ping && window.__ping(9); window.__rumble && window.__rumble(2.4 / k); } catch (_) {}
+  { const pat = [45, 30, 80, 70]; for (let i = 0; i < 26; i++) pat.push(30, 22); vib(pat); }
+  const n = reduce ? 16 : 40, top = Math.min(W, H) * 1.05;
+  for (let i = 0; i < n; i++) { const an = Math.random() * TAU, v = 110 + Math.pow(Math.random(), .7) * top, big = Math.random() < .2;
+    spawn(F.x, F.y, Math.cos(an) * v, Math.sin(an) * v, 1.1 + Math.random() * 1.7, SPARK[(Math.random() * SPARK.length) | 0], PINKS[(Math.random() * PINKS.length) | 0], FS * (big ? 1.2 : .55) * (.7 + Math.random() * .6), .22, 14); }
+}
+
+function frame(now) {
+  if (done) return; requestAnimationFrame(frame);
+  if (!t0) t0 = now; const t = (now - t0) / 1000, dts = Math.min(.05, t - (frame.l || t)); frame.l = t;
+  const m = meetAt ? (now - meetAt) / 1000 * k : -1;
+  const fs = clamp(Math.min(W, H) / 16, 17, 26), appear = clamp((t - .4) / 1.4, 0, 1); FS = fs;
+  const dAB = Math.hypot(B.x - A.x, B.y - A.y);
+  spQ = sp ? clamp((now - sp) / 1000 * k / .9, 0, 1) : 0;
+  const heat = m < 0 ? Math.max(clamp(1 - dAB / (Math.hypot(W, H) * .34), 0, 1), spQ) : 1;           // 0 = far apart, 1 = about to touch
+
+  /* camera: tremor while they spiral, then a punch-in on impact that eases back out as the heart settles into the next page's place */
+  let s = 1, tx = F.x, ty = F.y, shk = 0, swx = 0, swy = 0, rot = 0;
+  if (m >= 0) { const zi = eo(clamp(m / .3, 0, 1)), zd = eio(clamp((m - 1) / 1.8, 0, 1)); s = 1 + .72 * zi + .1 * clamp(m / 1.2, 0, 1) - .82 * zd; tx = lerp(F.x, T.x, zd); ty = lerp(F.y, T.y, zd); shk = Math.exp(-m * 5) * 11 * fx;
+    const quake = sm(.3, 1.1, m) * (1 - sm(2.15, 2.6, m)) * (.55 + .45 * Math.sin(m * 8.5)) * 9 * fx;               // the ground rumbles while the heart gathers
+    const slam = (Math.exp(-Math.pow((m - 2.62) / .075, 2)) + .75 * Math.exp(-Math.pow((m - 2.86) / .075, 2))) * 8 * fx;   // and jolts on each heartbeat
+    shk += quake * .55 + slam; swx = Math.sin(t * 43) * quake * .9; swy = Math.sin(t * 57 + 1.3) * quake * .7; rot = Math.sin(t * 29) * (quake * .0022 + slam * .0016); }
+  else if (sp) shk = spQ * spQ * 4 * fx;
+  const shx = (Math.random() - .5) * 2 * shk + swx, shy = (Math.random() - .5) * 2 * shk + swy;
+  x.setTransform(DPR, 0, 0, DPR, 0, 0); x.clearRect(0, 0, W, H);
+  x.translate(tx + shx, ty + shy); if (rot) x.rotate(rot); x.scale(s, s); x.translate(-F.x, -F.y); x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '10px ' + FONT;
+  /* the night sky: pulled toward the stars while they charge, shoved outward by the blast */
+  const pf = m < 0 ? 1 - .14 * spQ : 1 + .3 * Math.exp(-m * 3), pcx = m < 0 ? M.x : F.x, pcy = m < 0 ? M.y : F.y;
+  x.fillStyle = '#f6dfe6';
+  for (const q of stars) { x.fillStyle = q.p > 3.1 ? '#cfe0ff' : '#f6dfe6'; x.globalAlpha = (.12 + .5 * Math.max(0, Math.sin(t * q.s + q.p))) * clamp(t / 1.5, 0, 1); x.fillText(q.g, pcx + (q.x - pcx) * pf, pcy + (q.y - pcy) * pf); }
+
+  if (m < 0) {
+    if (!sp) {
+      const rate = (reduce ? .9 : .13) + Math.max(0, t - 3) * (reduce ? .5 : .07), wob = Math.min(1, dAB / 140) * 9;   // left alone, they drift together and always get there
+      const ax = down ? ptr.x : B.x, ay = down ? ptr.y : B.y, ar = down ? 5 : rate * .5;
+      A.x += (ax - A.x) * Math.min(1, dts * ar) + Math.cos(t * 1.9 + A.p) * wob * dts * 3; A.y += (ay - A.y) * Math.min(1, dts * ar) + Math.sin(t * 2.3 + A.p) * wob * dts * 3;
+      B.x += (A.x - B.x) * Math.min(1, dts * rate * (1 + 2.5 * heat * heat)) + Math.cos(t * 1.7 + B.p) * wob * dts * 3; B.y += (A.y - B.y) * Math.min(1, dts * rate * (1 + 2.5 * heat * heat)) + Math.sin(t * 2.1 + B.p) * wob * dts * 3;
+      if (t > 1.6 && dAB < fs * 1.0) startSpiral(now, dAB);                                  // only when they truly touch
+    } else {                                                                                        // whirling in, faster and faster
+      const r = (spR0 + fs * .9 * Math.sin(Math.min(1, spQ / .45) * PI)) * Math.pow(1 - spQ, 1.3), a = spA0 + TAU * 3.4 * Math.pow(spQ, 1.7);
+      A.x = M.x + Math.cos(a) * r; A.y = M.y + Math.sin(a) * r; B.x = M.x - Math.cos(a) * r; B.y = M.y - Math.sin(a) * r;
+      if (now >= pingAt && spQ < 1) { try { window.__ping && window.__ping((7 * (pingN++ % 10)) % 10); } catch (_) {} pingAt = now + lerp(230, 85, spQ) / k; }   // a rising little scale
+      if (spQ >= 1) impact(now);
+    }
+    /* sparkles streaming off both stars, more and more as they close in */
+    if (appear > .4) {
+      emitAcc += dts * (3 + 14 * heat * heat + 36 * spQ) * (reduce ? .4 : 1);
+      while (emitAcc > 1) { emitAcc -= 1; const o = Math.random() < .5 ? A : B, an = Math.random() * TAU, v = 14 + Math.random() * 40 * (1 + 2 * heat), hearts = o === A && down ? .4 : .07;
+        spawn(o.x, o.y, Math.cos(an) * v, Math.sin(an) * v, .6 + Math.random() * .9, Math.random() < hearts ? '♥' : SPARK[(Math.random() * 5) | 0], Math.random() < .5 ? o.c : PINKS[(Math.random() * PINKS.length) | 0], fs * (.3 + .35 * Math.random()), .5, 8); }
+    }
+    x.globalCompositeOperation = 'lighter';
+    const hr = fs * (2.2 + 5 * heat);                                                               // halos swell as they near
+    glow(A.x, A.y, hr, '255,160,190', (.1 + .38 * heat) * appear); glow(B.x, B.y, hr, '120,175,255', (.1 + .38 * heat) * appear);
+    if (sp) {                                                                                       // rings of light collapse onto the point where they will meet
+      const q3 = spQ * spQ * spQ;
+      glow(M.x, M.y, fs * (1.2 + 7 * spQ * spQ), '225,200,255', .62 * spQ * spQ);
+      x.lineWidth = 1.4; x.shadowColor = 'rgba(255,150,180,.9)'; x.shadowBlur = 8;
+      for (let i = 0; i < 2; i++) { const u = (spQ * 2 + i * .5) % 1; x.strokeStyle = (i ? 'rgba(170,205,255,' : 'rgba(255,190,210,') + (u * .6 * Math.min(1, spQ * 4) * (1 - q3 * .5)).toFixed(3) + ')'; x.globalAlpha = 1;
+        x.beginPath(); x.arc(M.x, M.y, fs * 4.5 * (1 - u) + fs * .5, 0, TAU); x.stroke(); }
+      x.shadowBlur = 0;
+    }
+    if (heat > .06 && dAB > 1) {                                                                    // a shimmering thread of light between the two of them
+      const n = Math.min(48, Math.max(4, Math.round(dAB / 9))), nx = -(B.y - A.y) / dAB, ny = (B.x - A.x) / dAB;
+      x.font = Math.round(fs * .5) + 'px ' + FONT;
+      for (let i = 0; i <= n; i++) { const u = i / n, sn = Math.sin(u * PI), off = Math.sin(u * PI * 3 + t * 7) * 7 * heat * sn;
+        x.globalAlpha = (.18 + .6 * heat) * appear * (.35 + .65 * sn); x.fillStyle = i % 5 === 0 ? '#f6f2ff' : thr(u);
+        x.fillText(i % 5 === 0 ? '✦' : '·', lerp(A.x, B.x, u) + nx * off, lerp(A.y, B.y, u) + ny * off); }
+    }
+    x.globalCompositeOperation = 'source-over';
+    for (const o of [A, B]) { o.tr.push({ x: o.x, y: o.y }); if (o.tr.length > 30) o.tr.shift(); x.fillStyle = o.c; x.font = fs * .6 + 'px ' + FONT; o.tr.forEach(function (q, i) { x.globalAlpha = (i / o.tr.length) * (.45 + .3 * heat) * appear; x.fillText('·', q.x, q.y); }); }
+    const gr = down && !sp ? 1.25 : 1, sz = fs * (1 + .5 * heat) * gr, bl = 14 + 22 * heat, pu = 5 + 14 * heat;
+    star(A, sz * (1 + .14 * Math.sin(t * pu)), appear, bl); star(B, sz * (1 + .14 * Math.sin(t * pu + 2)), appear, bl);
+  } else {
+    /* ---------- the impact ---------- */
+    const W2 = Math.hypot(W, H), blast = 1 - clamp(m / 1.2, 0, 1);
+    x.globalCompositeOperation = 'lighter'; x.globalAlpha = 1;
+    glow(F.x, F.y, W2 * .5 * (.4 + .6 * eo(clamp(m / .8, 0, 1))), '230,180,255', .5 * Math.pow(blast, 1.5) * (reduce ? .5 : 1));
+    const ra = .24 * Math.pow(1 - clamp(m / 1.5, 0, 1), 1.6) * (reduce ? .5 : 1);                   // rays fanning out
+    if (ra > .005) {
+      const R = W2 * .65, g = x.createRadialGradient(0, 0, 0, 0, 0, R); g.addColorStop(0, 'rgba(232,222,255,' + ra.toFixed(3) + ')'); g.addColorStop(1, 'rgba(190,170,255,0)');
+      x.save(); x.translate(F.x, F.y); x.rotate(m * .5); x.fillStyle = g;
+      for (let i = 0; i < 10; i++) { x.rotate(TAU / 10); const w = i % 2 ? .035 : .06; x.beginPath(); x.moveTo(0, 0); x.lineTo(R * Math.cos(-w), R * Math.sin(-w)); x.lineTo(R * Math.cos(w), R * Math.sin(w)); x.closePath(); x.fill(); }
+      x.restore();
+    }
+    const fa = 1 - clamp(m / .9, 0, 1);                                                             // lens flare: a bright cross of light
+    if (fa > .01) {
+      const L = fs * 16 * (.5 + .5 * eo(clamp(m / .25, 0, 1))) * fa + fs;
+      for (let i = 0; i < 2; i++) { x.save(); x.translate(F.x, F.y); x.rotate(i ? PI / 4 + m * .6 : 0); const lg = x.createLinearGradient(-L, 0, L, 0);
+        lg.addColorStop(0, 'rgba(' + (i ? '255,200,215' : '170,205,255') + ',0)'); lg.addColorStop(.5, 'rgba(255,248,250,' + (.95 * fa * (i ? .55 : 1)).toFixed(3) + ')'); lg.addColorStop(1, 'rgba(' + (i ? '255,200,215' : '170,205,255') + ',0)');
+        x.fillStyle = lg; const th = (i ? 1.6 : 2.6) * (.4 + fa); x.fillRect(-L, -th / 2, L * 2, th); x.restore(); }
+      if (m < .5) { const ms = { x: F.x, y: F.y, c: '#f4f0ff' }; x.globalCompositeOperation = 'source-over'; star(ms, fs * (2.2 + 5 * eo(m / .5)), 1 - m / .5, 30); x.globalCompositeOperation = 'lighter'; }
+    }
+    x.globalCompositeOperation = 'source-over';
+    const Rmax = W2 * .62;                                                                          // shockwaves
+    shock(m, 0, 1.5, Rmax, 4, .9, '255,196,212'); shock(m, .14, 1.7, Rmax * .85, 3, .75, '215,195,255'); shock(m, .3, 1.9, Rmax * .7, 2, .6, '170,205,255');
+    /* ---------- the heart gathers ---------- */
+    const settle = clamp((m - 1.1) / 1.3, 0, 1), env = Math.exp(-Math.pow((m - 2.62) / .075, 2)) + .75 * Math.exp(-Math.pow((m - 2.86) / .075, 2)), hs = 1 + .12 * env;
+    if (!b1 && m >= 2.55) { b1 = true; heartBeat(m, true); } if (!b2 && m >= 2.8) { b2 = true; heartBeat(m, false); }
+    x.globalCompositeOperation = 'lighter'; glow(F.x, F.y, Rh * (1.9 + .35 * env), '255,110,150', .26 * settle + .32 * env); x.globalCompositeOperation = 'source-over';
+    x.font = cfs + 'px ' + FONT;
+    for (let i = 0; i < cells.length; i++) {
+      const c = cells[i], p = clamp((m - .35 - c.d * .75) / 1.25, 0, 1); if (p <= 0) continue;
+      const fl = p < 1, al = Math.min(1, p * 2.2) * c.a;
+      if (fl) { const lv = ((1 - p) * 3.99) | 0, wh = lv * .22; if (!c.ws) c.ws = []; x.fillStyle = c.ws[lv] || (c.ws[lv] = 'rgb(' + ((c.cr + (255 - c.cr) * wh) | 0) + ',' + ((c.cg + (255 - c.cg) * wh) | 0) + ',' + ((c.cb + (255 - c.cb) * wh) | 0) + ')'); } else x.fillStyle = c.col;
+      if (fl && c.tr && p > .05) { cellPos(c, Math.max(0, p - .08), hs); x.globalAlpha = al * .32; x.fillText('·', cpx, cpy); }   // a short streak behind flying cells
+      cellPos(c, p, hs); x.globalAlpha = al; x.fillText(fl && p < .55 ? c.fg : c.gl, cpx, cpy);
+    }
+    x.fillStyle = 'rgb(255,170,195)';                                                               // the heart's own beat ripples
+    for (const r0 of rips) {
+      const kk = (m - r0) / 1.3; if (kk < 0 || kk > 1) continue;
+      const e = 1 - (1 - kk) * (1 - kk), r = Rh * (1.15 + 1.6 * e), n = Math.max(24, Math.round(TAU * r / (cfs * 2.4)));
+      x.globalAlpha = .5 * Math.pow(1 - kk, 1.4); x.font = Math.max(9, cfs) + 'px ' + FONT;
+      for (let i = 0; i < n; i++) { const an = i / n * TAU + r0; x.fillText('·', F.x + r * Math.cos(an), F.y + r * Math.sin(an) * .92); }
+    }
+    if (m > 3.5 && !handed) handOver();
+  }
+
+  /* sparkles, hearts and burst debris (drawn last, over everything) */
+  x.globalCompositeOperation = 'source-over';
+  for (let i = pa.length - 1; i >= 0; i--) {
+    const p = pa[i]; p.l -= dts; if (p.l <= 0) { pa.splice(i, 1); continue; }
+    const dk = Math.pow(p.dr, dts); p.vx *= dk; p.vy = p.vy * dk - p.gy * dts; p.x += p.vx * dts; p.y += p.vy * dts;
+    x.globalAlpha = Math.min(1, p.l / (p.ml * .55)) * Math.min(1, (p.ml - p.l) / .06); x.font = p.sz + 'px ' + FONT; x.fillStyle = p.c; x.fillText(p.g, p.x, p.y);
+  }
+
+  /* the flash: a white-pink wash that blooms from the exact spot where they met (screen space, so it fills the whole view) */
+  if (m >= 0 && m < .8) {
+    const fl = Math.pow(1 - clamp(m / .75, 0, 1), 2) * (reduce ? .45 : .95), fr = W2c() * (.5 + .5 * clamp(m / .3, 0, 1)), cx = tx + shx, cy = ty + shy;
+    x.setTransform(DPR, 0, 0, DPR, 0, 0); x.globalCompositeOperation = 'lighter'; x.globalAlpha = 1;
+    const g = x.createRadialGradient(cx, cy, 0, cx, cy, fr);
+    g.addColorStop(0, 'rgba(255,252,255,' + fl.toFixed(3) + ')'); g.addColorStop(.25, 'rgba(228,218,255,' + (fl * .7).toFixed(3) + ')'); g.addColorStop(.6, 'rgba(255,175,205,' + (fl * .35).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,120,160,0)');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+  }
+  x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+}
+function W2c() { return Math.hypot(W, H) * .6; }
+function handOver() {
+  handed = true; intro.classList.add('leave');
+  document.body.classList.add('i-done'); try { window.__gateStart && window.__gateStart(2.6); } catch (_) {}   // the next page's own heart is already there beneath, so the two simply become one
+  intro.classList.add('out'); setTimeout(function () { done = true; intro.style.display = 'none'; }, 1800);
+}
+function mv(e) { const r = intro.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; }
+intro.addEventListener('pointerdown', function (e) { mv(e); down = true; });                      // the rose star follows her finger
+intro.addEventListener('pointermove', function (e) { if (down) mv(e); });
+['pointerup', 'pointercancel'].forEach(function (n) { intro.addEventListener(n, function () { down = false; }); });
+let rt = 0; const sched = function () { clearTimeout(rt); rt = setTimeout(resize, 80); };
+window.addEventListener('resize', sched); window.addEventListener('orientationchange', function () { sched(); setTimeout(sched, 350); });
+resize(); requestAnimationFrame(frame);
 })();
 </script>
 </body></html>
